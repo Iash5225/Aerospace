@@ -17,9 +17,13 @@ class Rocket:
         self.OUTPUT_FOLDER_PATH = r"project\output"
 
         # Save
-        self.PLOT_SAVE = false
+        self.PLOT_SAVE = False
         # Events
-        self.DISPLAY_MOTOR_BURNOUT = False
+        self.DISPLAY_MOTOR_BURNOUT = True
+        self.DISPLAY_LAUNCH = False
+        self.DISPLAY_APOGEE = True
+        self.DISPLAY_GROUND_HIT = False
+        self.DISPLAY_LAUNCH_ROD = False
 
         # Load data
         self.df = self.read_csv_file()
@@ -32,6 +36,18 @@ class Rocket:
 
     def set_DISPLAY_MOTOR_BURNOUT(self, state: bool) -> None:
         self.DISPLAY_MOTOR_BURNOUT = state
+
+    def set_DISPLAY_LAUNCHT(self, state: bool) -> None:
+        self.DISPLAY_LAUNCH = state
+
+    def set_DISPLAY_APOGEE(self, state: bool) -> None:
+        self.DISPLAY_APOGEE = state
+
+    def set_DISPLAY_GROUND_HIT(self, state: bool) -> None:
+        self.DISPLAY_GROUND_HIT = state
+
+    def set_DISPLAY_LAUNCH_ROD(self, state: bool) -> None:
+        self.DISPLAY_LAUNCH_ROD = state
 
     def set_data_file_Path(self, filepath):
         self.DATA_FILEPATH = filepath
@@ -93,7 +109,8 @@ class Rocket:
         Reads a CSV file and extracts rows that contain comments in the '# Time (s)' column.
         """
         df = self.df
-        comments_df = df[df["# Time (s)"].astype(str).str.contains("#")].copy(deep=True)
+        comments_df = df[df["# Time (s)"].astype(
+            str).str.contains("#")].copy(deep=True)
         comments_df["Time (s)"] = comments_df["# Time (s)"].apply(
             lambda x: re.search(r"t=([\d\.]+)", x).group(1)
             if re.search(r"t=([\d\.]+)", x)
@@ -153,7 +170,8 @@ class Rocket:
         """
         Merges the filtered DataFrame with the comments DataFrame.
         """
-        merged_df = self.filtered_df.merge(self.comments_df, on="Time (s)", how="left")
+        merged_df = self.filtered_df.merge(
+            self.comments_df, on="Time (s)", how="left")
         # Dropping the 'Time (s)' column from the merged DataFrame
         merged_df.drop(columns=["Time (s)"], inplace=True)
 
@@ -190,7 +208,8 @@ class Rocket:
 
         pre_round_max = int(
             max(
-                df["Vertical velocity (m/s)"].max(), df["Vertical velocity (m/s)"].max()
+                df["Vertical velocity (m/s)"].max(
+                ), df["Vertical velocity (m/s)"].max()
             )
         )
         MAX_VERTICAL_MOTION = (
@@ -210,7 +229,8 @@ class Rocket:
         fig, ax1 = plt.subplots(figsize=(12, 6))
 
         # Plot Altitude
-        ax1.plot(df["Time (s)"], df["Altitude (ft)"], "k:", label="Altitude (ft)")
+        ax1.plot(df["Time (s)"], df["Altitude (ft)"],
+                 "k:", label="Altitude (ft)")
         ax1.set_xlabel("TIME (s)")
         ax1.set_ylabel("ALTITUDE (ft)")
 
@@ -265,6 +285,23 @@ class Rocket:
             ax1.axvline(
                 x=event_time, color="r", linestyle="-", label="BURNOUT/EJECTION_CHARGE"
             )
+        elif self.DISPLAY_LAUNCH:
+            event_time = self.find_event_time(df, "LAUNCH/IGNITION")
+            ax1.axvline(
+                x=event_time, color="r", linestyle="-", label="LAUNCH/IGNITION"
+            )
+        elif self.DISPLAY_APOGEE:
+            event_time = self.find_event_time(df, "APOGEE")
+            ax1.axvline(x=event_time, color="r", linestyle="-", label="APOGEE")
+        elif self.DISPLAY_GROUND_HIT:
+            event_time = self.find_event_time(df, "GROUND_HIT/SIMULATION_END")
+            ax1.axvline(
+                x=event_time, color="r", linestyle="-", label="GROUND_HIT/SIMULATION_END"
+            )
+        elif self.DISPLAY_LAUNCH_ROD:
+            event_time = self.find_event_time(df, "LAUNCH_ROD")
+            ax1.axvline(x=event_time, color="r",
+                        linestyle="-", label="LAUNCH_ROD")
 
         plt.show()
 

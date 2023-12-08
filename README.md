@@ -16,8 +16,8 @@ To ensure a consistent environment for all users, it's recommended to use a virt
 1. Install virtualenv: `pip install virtualenv`
 2. Create a virtual environment: `virtualenv venv`
 3. Activate the virtual environment:
-4. On Windows: `venv\Scripts\activate`
-5. On Unix or MacOS: `source venv/bin/activate`
+- On Windows: `venv\Scripts\activate`
+- On Unix or MacOS: `source venv/bin/activate`
 6. Once the virtual environment is activated, install the required packages: `pip install -r requirements.txt`
 
 ## How to Use
