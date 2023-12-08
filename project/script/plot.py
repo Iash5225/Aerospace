@@ -1,12 +1,12 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import math
+
 
 # Constants
 MOTOR_NAME = "M2100F"
 ROCKET_LENGTH = 2300
-MAX_ALTITUDE = 10000
-MIN_ALTITUDE = 0
 ALTITUDE_INCREMENTS = 1000
 MAX_VERTICAL_MOTION = 400
 MIN_VERTICAL_MOTION = -100
@@ -15,6 +15,7 @@ FLIGHT_PROFILE_CSV_FILE_PATH = "project\data\Flight_Profile.csv"
 STABILITY_CSV_FILE_PATH = "project\data\Stability_vs_time.csv"
 THURST_CURVE_CSV = "project\data\AeroTech_M2100G.csv"
 AVERAGE_THRUST = 2173.6
+ROCKET_DATA_CSV = "project\data\2024 Rocket_Data.csv"
 
 rename_dict = {"# Time (s)": "Time (s)"}
 
@@ -81,8 +82,9 @@ def plot_Flight_Profile():
     ax1.set_xlabel("TIME (s)")
     ax1.set_ylabel("ALTITUDE (ft)")
     ax1.set_xlim(0, df["Time (s)"].max())
-    ax1.set_ylim(MIN_ALTITUDE, MAX_ALTITUDE)
-    ax1.set_yticks(range(MIN_ALTITUDE, MAX_ALTITUDE + 1, ALTITUDE_INCREMENTS))
+    MAX_ALTITUDE = math.ceil(int(df["Altitude (ft)"].max()) / 1000) * 1000
+    ax1.set_ylim(0, MAX_ALTITUDE)
+    ax1.set_yticks(range(0, MAX_ALTITUDE + 1, ALTITUDE_INCREMENTS))
     ax1.grid(True)
 
     # Plot Vertical velocity and Vertical acceleration on the same axis, ax2
