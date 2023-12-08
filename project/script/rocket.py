@@ -16,6 +16,8 @@ class Rocket:
         self.AVERAGE_THRUST = 2173.6
         self.OUTPUT_FOLDER_PATH = r"project\output"
 
+        # Save
+        self.PLOT_SAVE = false
         # Events
         self.DISPLAY_MOTOR_BURNOUT = False
 
@@ -24,6 +26,9 @@ class Rocket:
         self.comments_df = self.extract_comments()
         self.filtered_df = self.filter_comments_from_csv()
         self.merged_df = self.merge_dataframes()
+
+    def set_PLOT_SAVE(self, state: bool) -> None:
+        self.PLOT_SAVE = state
 
     def set_DISPLAY_MOTOR_BURNOUT(self, state: bool) -> None:
         self.DISPLAY_MOTOR_BURNOUT = state
@@ -129,9 +134,10 @@ class Rocket:
         return comments_df[["Time (s)", "Event"]]
 
     def filter_comments_from_csv(self):
-        # Implementation of filter_comments_from_csv
-        """
-        filters out rows that contain comments.
+        """Filters out rows that contain comments from the dataframe.
+
+        Returns:
+            _type_: _description_
         """
         df = self.df.copy(deep=True)
         filtered_df = df[~df["# Time (s)"].astype(str).str.contains("#")].copy(
@@ -161,9 +167,23 @@ class Rocket:
 
         return merged_df
 
+    def find_event_time(self, event_name: str) -> float:
+        """Find the time when a specific event occurred.
+
+        Args:
+            event_name (str): The name of the event to find
+
+        Returns:
+            float: The time when the event occurred or None if the event was not found.
+        """
+        event_times = self.merged_df.loc[
+            self.merged_df["Event"] == event_name, "Time (s)"
+        ]
+        return float(event_times.iloc[0]) if not event_times.empty else None
+
     def plot_Flight_Profile(self):
         """Plot Flight Profile data."""
-        df = self.merged_df
+        df = self.merged_df.copy(deep=True)
         # df.rename(columns=rename_dict, inplace=True)
 
         MAX_ALTITUDE = math.ceil(int(df["Altitude (ft)"].max()) / 1000) * 1000
@@ -241,41 +261,34 @@ class Rocket:
         fig.tight_layout()  # Adjust layout to fit labels
 
         if self.DISPLAY_MOTOR_BURNOUT:
-            event_time = find_event_time(df, "BURNOUT/EJECTION_CHARGE")
+            event_time = self.find_event_time(df, "BURNOUT/EJECTION_CHARGE")
             ax1.axvline(
                 x=event_time, color="r", linestyle="-", label="BURNOUT/EJECTION_CHARGE"
             )
 
         plt.show()
 
-    def find_event_time(self, event_name: str) -> float:
-        """Find the time when a specific event occurred.
-
-        Args:
-            event_name (str): The name of the event to find
-
-        Returns:
-            float: The time when the event occurred or None if the event was not found.
-        """
-        event_times = self.merged_df.loc[
-            self.merged_df["Event"] == event_name, "Time (s)"
-        ]
-        return float(event_times.iloc[0]) if not event_times.empty else None
+        if self.PLOT_SAVE:
+            filename = "/Flight_Profile.png"
+            self.fig.savefig(self.output_folder_path + filename)
 
     def run(self):
         # Optionally, you can create a run method to execute the main logic
         self.plot_Flight_Profile()
 
-        if self.save:
-            filename = "/Flight_Profile.png"
-            self.fig.savefig(self.output_folder_path + filename)
+
+def main():
+    # Usage
+    csv_file_path = (
+        r"C:\Users\iash.bashir\Downloads\Aerospace\project\data\Rocket Data.csv"
+    )
+    profile = Rocket(csv_file_path)
+    profile.set_motor_name("M2100")
+    profile.set_rocket_length(2500)
+    profile.set_altitude_increments(1000)
+    # ... other settings as needed
+    profile.run()
 
 
-# Usage
-csv_file_path = r"C:\Users\iash.bashir\Downloads\Aerospace\project\data\Rocket Data.csv"
-profile = Rocket(csv_file_path)
-profile.set_motor_name("M2100")
-profile.set_rocket_length(2500)
-profile.set_altitude_increments(1000)
-# ... other settings as needed
-profile.run()
+if __name__ == "__main__":
+    main()
