@@ -8,15 +8,13 @@ import math
 class Rocket:
     def __init__(self, filepath):
         # Default values for constants
-        self.data_filepath = filepath
+        self.DATA_FILEPATH = filepath
         self.MOTOR_NAME = "M2100F"
         self.ROCKET_LENGTH = 2300
         self.ALTITUDE_INCREMENTS = 1000
         self.VERTICAL_MOTION_INCREMENTS = 50
         self.AVERAGE_THRUST = 2173.6
-        self.output_folder_path = (
-            r"C:\Users\iash.bashir\Downloads\Aerospace\project\output"
-        )
+        self.OUTPUT_FOLDER_PATH = r"project\output"
         # Load data
         self.df = self.read_csv_file()
         self.comments_df = self.extract_comments()
@@ -24,7 +22,7 @@ class Rocket:
         self.merged_df = self.merge_dataframes()
 
     def set_data_file_Path(self, filepath):
-        self.data_filepath = filepath
+        self.DATA_FILEPATH = filepath
 
     def set_motor_name(self, motor_name):
         self.MOTOR_NAME = motor_name
@@ -42,7 +40,7 @@ class Rocket:
         self.AVERAGE_THRUST = thrust
 
     def set_output_folder_path(self, path):
-        self.output_folder_path = path
+        self.OUTPUT_FOLDER_PATH = path
 
     def read_csv_file(self):
         """
@@ -71,9 +69,19 @@ class Rocket:
         # Implementation of plot_Flight_Profile
         pass
 
-    def find_event_time(self, event_name):
-        # Implementation of find_event_time
-        pass
+    def find_event_time(self, event_name: str) -> float:
+        """Find the time when a specific event occurred.
+
+        Args:
+            event_name (str): The name of the event to find
+
+        Returns:
+            float: The time when the event occurred or None if the event was not found.
+        """
+        event_times = self.merged_df.loc[
+            self.merged_df["Event"] == event_name, "Time (s)"
+        ]
+        return float(event_times.iloc[0]) if not event_times.empty else None
 
     def remove_non_caps(self, text):
         # Implementation of remove_non_caps
