@@ -11,9 +11,9 @@ ALTITUDE_INCREMENTS = 1000
 MAX_VERTICAL_MOTION = 400
 MIN_VERTICAL_MOTION = -100
 VERTICAL_MOTION_INCREMENTS = 50
-FLIGHT_PROFILE_CSV_FILE_PATH = "Flight_Profile.csv"
-STABILITY_CSV_FILE_PATH = "Stability_vs_time.csv"
-THURST_CURVE_CSV = "AeroTech_M2100G.csv"
+FLIGHT_PROFILE_CSV_FILE_PATH = "project\data\Flight_Profile.csv"
+STABILITY_CSV_FILE_PATH = "project\data\Stability_vs_time.csv"
+THURST_CURVE_CSV = "project\data\AeroTech_M2100G.csv"
 AVERAGE_THRUST = 2173.6
 
 rename_dict = {"# Time (s)": "Time (s)"}
@@ -143,9 +143,9 @@ def plot_Thrust_Curve():
     plt.title(f"{MOTOR_NAME} Motor - Thrust Curve")
     fig.tight_layout()  # Adjust layout to fit labels
     plt.show()
-    
+
+
 # def plot_CD_Override_text():
-    
 
 
 def main():

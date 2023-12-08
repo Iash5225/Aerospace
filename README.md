@@ -9,11 +9,6 @@ This web-based GUI is designed for the Rocket Club to easily visualize and analy
 - Interactive data visualization.
 - User-friendly web interface.
 
-## Installation
-```bash
-pip install [dependencies]
-```
-
 ## Setting up a virtual environment
 
 To ensure a consistent environment for all users, it's recommended to use a virtual environment. Here's how to set it up:
