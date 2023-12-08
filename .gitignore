@@ -58,4 +58,7 @@ fam_2301.egg-info
 #Virutal env
 myenv/
 
+#Virutal env
+venv/
+
 

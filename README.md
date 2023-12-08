@@ -19,10 +19,10 @@ pip install [dependencies]
 To ensure a consistent environment for all users, it's recommended to use a virtual environment. Here's how to set it up:
 
 1. Install virtualenv: `pip install virtualenv`
-2. Create a virtual environment: `virtualenv myenv`
+2. Create a virtual environment: `virtualenv venv`
 3. Activate the virtual environment:
-4. On Windows: `myenv\Scripts\activate`
-5. On Unix or MacOS: `source myenv/bin/activate`
+4. On Windows: `venv\Scripts\activate`
+5. On Unix or MacOS: `source venv/bin/activate`
 6. Once the virtual environment is activated, install the required packages: `pip install -r requirements.txt`
 
 ## How to Use
