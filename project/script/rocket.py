@@ -40,6 +40,43 @@ class Rocket:
         self.comments_df = self.extract_comments()
         self.filtered_df = self.filter_comments_from_csv()
         self.merged_df = self.merge_dataframes()
+        
+    def set_stability_unit(self, unit: str) -> None:
+        """Set the STABILITY_UNIT variable to either 'cal' or '%'.
+
+        Args:
+            unit (str): 'cal' for calibers or '%' for percentage
+        """
+        if unit in ['cal', '%']:
+            self.STABILITY_UNIT = unit
+        else:
+            print("Invalid stability unit. Please choose 'cal' or '%'.")
+
+    def set_show_full_stability_graph(self, state: bool) -> None:
+        """Set the SHOW_FULL_STABILITY_GRAPH variable to True or False.
+
+        Args:
+            state (bool): True to show full graph, False to limit to launch and burnout
+        """
+        self.SHOW_FULL_STABILITY_GRAPH = state
+        
+    def display_comments(self):
+        """Prints the comments DataFrame in a well-formatted manner."""
+
+        # Check if DataFrame exists
+        if self.comments_df is None:
+            print("Comments DataFrame not available.")
+            return
+
+        # Define the format for each row
+        row_format ="{:<15}" * len(self.comments_df.columns)
+
+        # Print the header
+        print(row_format.format(*self.comments_df.columns))
+
+        # Print each row
+        for _, row in self.comments_df.iterrows():
+            print(row_format.format(*row))
 
     def set_PLOT_SAVE(self, state: bool) -> None:
         """Set the PLOT_SAVE constant to True or False.
@@ -279,6 +316,26 @@ class Rocket:
         ]
         return float(event_times.iloc[0]) if not event_times.empty else None
 
+
+    def plot_event_markers(self, ax):
+            """Plot event markers on the provided Axes object.
+
+            Args:
+                ax (matplotlib.axes.Axes): The Axes object to plot on.
+            """
+            events = {
+                "BURNOUT/EJECTION_CHARGE": self.DISPLAY_MOTOR_BURNOUT,
+                "LAUNCH/IGNITION": self.DISPLAY_LAUNCH,
+                "APOGEE": self.DISPLAY_APOGEE,
+                "GROUND_HIT/SIMULATION_END": self.DISPLAY_GROUND_HIT,
+                "LAUNCHROD": self.DISPLAY_LAUNCH_ROD,
+            }
+            for event, display in events.items():
+                if display:
+                    event_time = self.find_event_time(event)
+                    if event_time is not None:
+                        ax.axvline(x=event_time, color="r", linestyle="-", label=event)
+                    
     def plot_Flight_Profile(self) -> None:
         """Plot the Flight Profile data."""
         df = self.merged_df.copy(deep=True)
@@ -357,18 +414,19 @@ class Rocket:
         fig.tight_layout()
 
         # Plot event markers
-        events = {
-            "BURNOUT/EJECTION_CHARGE": self.DISPLAY_MOTOR_BURNOUT,
-            "LAUNCH/IGNITION": self.DISPLAY_LAUNCH,
-            "APOGEE": self.DISPLAY_APOGEE,
-            "GROUND_HIT/SIMULATION_END": self.DISPLAY_GROUND_HIT,
-            "LAUNCH_ROD": self.DISPLAY_LAUNCH_ROD,
-        }
-        for event, display in events.items():
-            if display:
-                event_time = self.find_event_time(event)
-                if event_time is not None:
-                    ax1.axvline(x=event_time, color="r", linestyle="-", label=event)
+        self.plot_event_markers(ax1)
+        # events = {
+        #     "BURNOUT/EJECTION_CHARGE": self.DISPLAY_MOTOR_BURNOUT,
+        #     "LAUNCH/IGNITION": self.DISPLAY_LAUNCH,
+        #     "APOGEE": self.DISPLAY_APOGEE,
+        #     "GROUND_HIT/SIMULATION_END": self.DISPLAY_GROUND_HIT,
+        #     "LAUNCHROD": self.DISPLAY_LAUNCH_ROD,
+        # }
+        # for event, display in events.items():
+        #     if display:
+        #         event_time = self.find_event_time(event)
+        #         if event_time is not None:
+        #             ax1.axvline(x=event_time, color="r", linestyle="-", label=event)
 
         plt.show()
 
@@ -377,73 +435,74 @@ class Rocket:
             filename = "/Flight_Profile.png"
             fig.savefig(self.OUTPUT_FOLDER_PATH + filename)
      
-    def plot_Stability(self)->None:
+    def plot_Stability(self) -> None:
         """Plot Stability data."""
         df = self.merged_df.copy(deep=True)
-        # df.rename(columns=rename_dict, inplace=True)
 
-        df_cleaned = df.dropna(subset=["Stability margin calibers (​)"])
-        df_cleaned["stability margin percentage"] = (
-            (df_cleaned["CP location (mm)"] - df_cleaned["CG location (mm)"])
-            / self.ROCKET_LENGTH
-            * 100
-        )
+        # Calculate stability margin percentage if needed
+        if self.STABILITY_UNIT == '%':
+            df["stability margin percentage"] = (
+                (df["CP location (mm)"] - df["CG location (mm)"])
+                / self.ROCKET_LENGTH * 100
+            )
 
         fig, ax1 = plt.subplots(figsize=(12, 6))
-        ax1.plot(
-            df_cleaned["Time (s)"],
-            df_cleaned["Stability margin calibers (​)"],
-            "k-",
-            label="Stability(cal)",
-        )
-        ax2 = ax1.twinx()
-        ax2.plot(
-            df_cleaned["Time (s)"],
-            df_cleaned["CP location (mm)"],
-            "r--",
-            label="CP location (mm)",
-        )
-        ax2.plot(
-            df_cleaned["Time (s)"],
-            df_cleaned["CG location (mm)"],
-            "b--",
-            label="CG location (mm)",
-        )
+
+        # Select y-axis data based on STABILITY_UNIT and plot
+        if self.STABILITY_UNIT == 'cal':
+            ax1.plot(df["Time (s)"], df["Stability margin calibers (​)"], "k-", label="Stability(cal)")
+            y_label = "STABILITY (cal)"
+        else:
+            ax1.plot(df["Time (s)"], df["stability margin percentage"], "k-", label="Stability(%)")
+            y_label = "STABILITY (%)"
 
         ax1.set_xlabel("TIME (s)")
-        ax1.set_ylabel("STABILITY (cal)")
-        ax2.set_ylabel("LOCATION (mm)")
-        ax1.set_xlim(0, df["Time (s)"].max())
+        ax1.set_ylabel(y_label)
         ax1.grid(True)
+
+        # Plot CP and CG location on a secondary axis
+        ax2 = ax1.twinx()
+        ax2.plot(df["Time (s)"], df["CP location (mm)"], "r--", label="CP location (mm)")
+        ax2.plot(df["Time (s)"], df["CG location (mm)"], "b--", label="CG location (mm)")
+        ax2.set_ylabel("LOCATION (mm)")
+
+        # Set x-axis limits based on SHOW_FULL_STABILITY_GRAPH
+        if self.SHOW_FULL_STABILITY_GRAPH:
+            ax1.set_xlim(0, df["Time (s)"].max())
+        else:
+            launch_time = self.find_event_time("LAUNCH/IGNITION")
+            burnout_time = self.find_event_time("BURNOUT/EJECTION_CHARGE")
+            # ax1.set_xlim(launch_time, burnout_time)
+            ax1.set_xlim(0, burnout_time)
 
         # Combine legends from ax1 and ax2
         lines, labels = ax1.get_legend_handles_labels()
         lines2, labels2 = ax2.get_legend_handles_labels()
         ax1.legend(lines + lines2, labels + labels2, loc="upper right")
-
-        fig.tight_layout()
-        plt.subplots_adjust(top=0.95)
-        plt.title(f"{self.MOTOR_NAME} Motor - Stability(cal) vs Time(s)")
         
         # Plot event markers
-        events = {
-            "BURNOUT/EJECTION_CHARGE": self.DISPLAY_MOTOR_BURNOUT,
-            "LAUNCH/IGNITION": self.DISPLAY_LAUNCH,
-            "APOGEE": self.DISPLAY_APOGEE,
-            "GROUND_HIT/SIMULATION_END": self.DISPLAY_GROUND_HIT,
-            "LAUNCH_ROD": self.DISPLAY_LAUNCH_ROD,
-        }
-        for event, display in events.items():
-            if display:
-                event_time = self.find_event_time(event)
-                if event_time is not None:
-                    ax1.axvline(x=event_time, color="r", linestyle="-", label=event)
+        self.plot_event_markers(ax1)
+        # events = {
+        #     "BURNOUT/EJECTION_CHARGE": self.DISPLAY_MOTOR_BURNOUT,
+        #     "LAUNCH/IGNITION": self.DISPLAY_LAUNCH,
+        #     "APOGEE": self.DISPLAY_APOGEE,
+        #     "GROUND_HIT/SIMULATION_END": self.DISPLAY_GROUND_HIT,
+        #     "LAUNCHROD": self.DISPLAY_LAUNCH_ROD,
+        # }
+        # for event, display in events.items():
+        #     if display:
+        #         event_time = self.find_event_time(event)
+        #         print(event_time)
+        #         if event_time is not None:
+        #             ax1.axvline(x=event_time, color="r", linestyle="-", label=event)
+
+        plt.title(f"{self.MOTOR_NAME} Motor - {y_label} vs Time(s)")
         plt.show()
-        
+
         # Save plot if required
         if self.PLOT_SAVE:
             filename = "/Stability.png"
-            fig.savefig(self.OUTPUT_FOLDER_PATH + filename)       
+            fig.savefig(self.OUTPUT_FOLDER_PATH + filename)    
 
     def run(self):
         # Optionally, you can create a run method to execute the main logic
@@ -472,9 +531,13 @@ def main():
     profile.set_rocket_length(2500)
     profile.set_altitude_increments(1000)
     # ... other settings as needed
-    profile.set_DISPLAY_LAUNCH(True)
-    profile.set_DISPLAY_MOTOR_BURNOUT(True)
+    profile.set_DISPLAY_LAUNCH(False)
+    profile.set_DISPLAY_MOTOR_BURNOUT(False)
     profile.set_DISPLAY_APOGEE(False)
+    profile.set_DISPLAY_LAUNCH_ROD(True)
+    profile.set_show_full_stability_graph(False)
+    profile.set_stability_unit('%')
+    profile.display_comments()
     profile.run()
 
 
