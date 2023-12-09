@@ -315,6 +315,20 @@ class Rocket:
             self.merged_df["Event"] == event_name, "Time (s)"
         ]
         return float(event_times.iloc[0]) if not event_times.empty else None
+    
+    def find_event_mach(self, event_name: str) -> float:
+        """Find the time when a specific event occurred.
+
+        Args:
+            event_name (str): The name of the event to find
+
+        Returns:
+            float: The time when the event occurred or None if the event was not found.
+        """
+        event_times = self.merged_df.loc[
+            self.merged_df["Event"] == event_name, "Mach number (​)"
+        ]
+        return float(event_times.iloc[0]) if not event_times.empty else None
 
 
     def plot_event_markers(self, ax):
@@ -335,6 +349,30 @@ class Rocket:
                     event_time = self.find_event_time(event)
                     if event_time is not None:
                         ax.axvline(x=event_time, color="r", linestyle="-", label=event)
+                        ax.text(event_time, ax.get_ylim()[1], event,
+                        rotation=90, verticalalignment='top', horizontalalignment='right', color='red', fontsize=8)
+                        
+    def plot_event_markers_mach(self, ax):
+            """Plot event markers on the provided Axes object.
+
+            Args:
+                ax (matplotlib.axes.Axes): The Axes object to plot on.
+            """
+            events = {
+                "BURNOUT/EJECTION_CHARGE": self.DISPLAY_MOTOR_BURNOUT,
+                "LAUNCH/IGNITION": self.DISPLAY_LAUNCH,
+                "APOGEE": self.DISPLAY_APOGEE,
+                "GROUND_HIT/SIMULATION_END": self.DISPLAY_GROUND_HIT,
+                "LAUNCHROD": self.DISPLAY_LAUNCH_ROD,
+            }
+            for event, display in events.items():
+                if display:
+                    event_mach = self.find_event_mach(event)
+                    if event_mach is not None:
+                        ax.axvline(x=event_mach, color="r", linestyle="-", label=event)
+                        ax.text(event_mach, ax.get_ylim()[1], event,
+                        rotation=90, verticalalignment='top', horizontalalignment='right', color='red', fontsize=8)
+
                     
     def plot_Flight_Profile(self) -> None:
         """Plot the Flight Profile data."""
@@ -415,18 +453,6 @@ class Rocket:
 
         # Plot event markers
         self.plot_event_markers(ax1)
-        # events = {
-        #     "BURNOUT/EJECTION_CHARGE": self.DISPLAY_MOTOR_BURNOUT,
-        #     "LAUNCH/IGNITION": self.DISPLAY_LAUNCH,
-        #     "APOGEE": self.DISPLAY_APOGEE,
-        #     "GROUND_HIT/SIMULATION_END": self.DISPLAY_GROUND_HIT,
-        #     "LAUNCHROD": self.DISPLAY_LAUNCH_ROD,
-        # }
-        # for event, display in events.items():
-        #     if display:
-        #         event_time = self.find_event_time(event)
-        #         if event_time is not None:
-        #             ax1.axvline(x=event_time, color="r", linestyle="-", label=event)
 
         plt.show()
 
@@ -470,9 +496,7 @@ class Rocket:
         if self.SHOW_FULL_STABILITY_GRAPH:
             ax1.set_xlim(0, df["Time (s)"].max())
         else:
-            launch_time = self.find_event_time("LAUNCH/IGNITION")
             burnout_time = self.find_event_time("BURNOUT/EJECTION_CHARGE")
-            # ax1.set_xlim(launch_time, burnout_time)
             ax1.set_xlim(0, burnout_time)
 
         # Combine legends from ax1 and ax2
@@ -482,32 +506,58 @@ class Rocket:
         
         # Plot event markers
         self.plot_event_markers(ax1)
-        # events = {
-        #     "BURNOUT/EJECTION_CHARGE": self.DISPLAY_MOTOR_BURNOUT,
-        #     "LAUNCH/IGNITION": self.DISPLAY_LAUNCH,
-        #     "APOGEE": self.DISPLAY_APOGEE,
-        #     "GROUND_HIT/SIMULATION_END": self.DISPLAY_GROUND_HIT,
-        #     "LAUNCHROD": self.DISPLAY_LAUNCH_ROD,
-        # }
-        # for event, display in events.items():
-        #     if display:
-        #         event_time = self.find_event_time(event)
-        #         print(event_time)
-        #         if event_time is not None:
-        #             ax1.axvline(x=event_time, color="r", linestyle="-", label=event)
-
+        
         plt.title(f"{self.MOTOR_NAME} Motor - {y_label} vs Time(s)")
         plt.show()
 
         # Save plot if required
         if self.PLOT_SAVE:
             filename = "/Stability.png"
-            fig.savefig(self.OUTPUT_FOLDER_PATH + filename)    
+            fig.savefig(self.OUTPUT_FOLDER_PATH + filename)
+    
+    def plot_DragCoefficient(self)->None:
+        df = self.merged_df.copy(deep=True)
+        fig, ax1 = plt.subplots(figsize=(12, 6))
+        
+        ax1.set_xlabel("Mach")
+        ax1.set_ylabel("Drag Coefficient")
+        ax1.grid(True)
+        ax1.scatter(df["Mach number (​)"], df["Drag coefficient (​)"], color='k', s=5, label="Drag Coefficient")
+       
+        max_drag = math.ceil(df["Drag coefficient (​)"].max() * 10) / 10
+        max_mach = math.ceil(df["Mach number (​)"].max() * 10) / 10
+        
+        # Find the data range for the drag coefficient
+        min_drag_coefficient = df["Drag coefficient (​)"].min()
+        max_drag_coefficient = df["Drag coefficient (​)"].max()
+
+        # Add a buffer to the min and max
+        buffer = (max_drag_coefficient - min_drag_coefficient) * 0.1  # 10% buffer
+        min_limit = max(min_drag_coefficient - buffer, 0)  # Avoid negative lower limit
+        max_limit = max_drag_coefficient + buffer
+        
+        max_drag_rounded = math.ceil(max_limit * 10) / 10
+        min_drag_rounded = math.floor(min_limit * 10) / 10
+        
+        # Set the y-limits with a buffer
+        # ax1.set_ylim(min_limit, max_limit)
+        ax1.set_ylim(min_drag_rounded, max_drag_rounded)
+        # ax1.set_ylim(0, max_drag)
+        ax1.set_xlim(0,max_mach)
+        
+        # ax1.set_yticks(np.arange(0, max_drag+0.1, 0.05))
+        
+        # Plot event markers
+        self.plot_event_markers_mach(ax1)
+        
+        plt.show()
+            
 
     def run(self):
-        # Optionally, you can create a run method to execute the main logic
         # self.plot_Flight_Profile()
-        self.plot_Stability()
+        # self.plot_Stability()
+        self.plot_DragCoefficient()
+        
 
 
 def main():
@@ -532,12 +582,12 @@ def main():
     profile.set_altitude_increments(1000)
     # ... other settings as needed
     profile.set_DISPLAY_LAUNCH(False)
-    profile.set_DISPLAY_MOTOR_BURNOUT(False)
+    profile.set_DISPLAY_MOTOR_BURNOUT(True)
     profile.set_DISPLAY_APOGEE(False)
-    profile.set_DISPLAY_LAUNCH_ROD(True)
+    profile.set_DISPLAY_LAUNCH_ROD(False)
     profile.set_show_full_stability_graph(False)
     profile.set_stability_unit('%')
-    profile.display_comments()
+    # profile.display_comments()
     profile.run()
 
 
