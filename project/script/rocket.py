@@ -3,14 +3,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import re
 import math
+import os
 
 
 class Rocket:
-    """ Rocket class for plotting data from a CSV file.
-    """
+    """Rocket class for plotting data from a CSV file."""
 
     def __init__(self, filepath: str) -> None:
-        """  Initialise the Rocket class for plotting data from a CSV file.
+        """Initialise the Rocket class for plotting data from a CSV file.
 
         Args:
             filepath (str):  The path to the CSV file containing the data.
@@ -40,7 +40,7 @@ class Rocket:
         self.merged_df = self.merge_dataframes()
 
     def set_PLOT_SAVE(self, state: bool) -> None:
-        """ Set the PLOT_SAVE constant to True or False.
+        """Set the PLOT_SAVE constant to True or False.
 
         Args:
             state (bool):  True or False
@@ -48,7 +48,7 @@ class Rocket:
         self.PLOT_SAVE = state
 
     def set_DISPLAY_MOTOR_BURNOUT(self, state: bool) -> None:
-        """ Set the DISPLAY_MOTOR_BURNOUT constant to True or False.
+        """Set the DISPLAY_MOTOR_BURNOUT constant to True or False.
 
         Args:
             state (bool):  True or False
@@ -56,7 +56,7 @@ class Rocket:
         self.DISPLAY_MOTOR_BURNOUT = state
 
     def set_DISPLAY_LAUNCHT(self, state: bool) -> None:
-        """ Set the DISPLAY_LAUNCH constant to True or False.
+        """Set the DISPLAY_LAUNCH constant to True or False.
 
         Args:
             state (bool):  True or False
@@ -64,7 +64,7 @@ class Rocket:
         self.DISPLAY_LAUNCH = state
 
     def set_DISPLAY_APOGEE(self, state: bool) -> None:
-        """ Set the DISPLAY_APOGEE constant to True or False.
+        """Set the DISPLAY_APOGEE constant to True or False.
 
         Args:
             state (bool):  True or False
@@ -72,7 +72,7 @@ class Rocket:
         self.DISPLAY_APOGEE = state
 
     def set_DISPLAY_GROUND_HIT(self, state: bool) -> None:
-        """ Set the DISPLAY_GROUND_HIT constant to True or False.
+        """Set the DISPLAY_GROUND_HIT constant to True or False.
 
         Args:
             state (bool):  True or False
@@ -80,7 +80,7 @@ class Rocket:
         self.DISPLAY_GROUND_HIT = state
 
     def set_DISPLAY_LAUNCH_ROD(self, state: bool) -> None:
-        """ Set the DISPLAY_LAUNCH_ROD constant to True or False.
+        """Set the DISPLAY_LAUNCH_ROD constant to True or False.
 
         Args:
             state (bool):  True or False
@@ -88,7 +88,7 @@ class Rocket:
         self.DISPLAY_LAUNCH_ROD = state
 
     def set_data_file_Path(self, filepath: str) -> None:
-        """ Set the DATA_FILEPATH constant to the given filepath.
+        """Set the DATA_FILEPATH constant to the given filepath.
 
         Args:
             filepath (str):  _description_
@@ -96,7 +96,7 @@ class Rocket:
         self.DATA_FILEPATH = filepath
 
     def set_motor_name(self, motor_name: str) -> None:
-        """ Set the MOTOR_NAME constant to the given motor name.
+        """Set the MOTOR_NAME constant to the given motor name.
 
         Args:
             motor_name (str): Motor name
@@ -104,7 +104,7 @@ class Rocket:
         self.MOTOR_NAME = motor_name
 
     def set_rocket_length(self, length: int) -> None:
-        """ Set the ROCKET_LENGTH constant to the given length.
+        """Set the ROCKET_LENGTH constant to the given length.
 
         Args:
             length (int):  Rocket length
@@ -112,7 +112,7 @@ class Rocket:
         self.ROCKET_LENGTH = length
 
     def set_altitude_increments(self, increments: int) -> None:
-        """ Set the ALTITUDE_INCREMENTS constant to the given increments.
+        """Set the ALTITUDE_INCREMENTS constant to the given increments.
 
         Args:
             increments (int):  Altitude increments
@@ -120,7 +120,7 @@ class Rocket:
         self.ALTITUDE_INCREMENTS = increments
 
     def set_vertical_motion_increments(self, increments: int) -> None:
-        """ Set the VERTICAL_MOTION_INCREMENTS constant to the given increments.
+        """Set the VERTICAL_MOTION_INCREMENTS constant to the given increments.
 
         Args:
             increments (int):  Vertical motion increments
@@ -128,7 +128,7 @@ class Rocket:
         self.VERTICAL_MOTION_INCREMENTS = increments
 
     def set_average_thrust(self, average_thrust: float) -> None:
-        """ Set the AVERAGE_THRUST constant to the given thrust.
+        """Set the AVERAGE_THRUST constant to the given thrust.
 
         Args:
             average_thrust (float):  Average thrust
@@ -136,7 +136,7 @@ class Rocket:
         self.AVERAGE_THRUST = average_thrust
 
     def set_output_folder_path(self, path: str) -> None:
-        """ Set the OUTPUT_FOLDER_PATH constant to the given path.
+        """Set the OUTPUT_FOLDER_PATH constant to the given path.
 
         Args:
             path (str):  Output folder path
@@ -144,7 +144,7 @@ class Rocket:
         self.OUTPUT_FOLDER_PATH = path
 
     def read_csv_file(self) -> pd.DataFrame:
-        """ Read the CSV file and return a DataFrame.
+        """Read the CSV file and return a DataFrame.
 
         Returns:
             pd.DataFrame:  DataFrame containing the data from the CSV file
@@ -181,14 +181,13 @@ class Rocket:
         return " ".join(word for word in text.split() if word.isupper())
 
     def extract_comments(self) -> pd.DataFrame:
-        """  Extracts the comments from the CSV file and returns a DataFrame.
+        """Extracts the comments from the CSV file and returns a DataFrame.
 
         Returns:
             pd.DataFrame:  DataFrame containing the comments from the CSV file
         """
         df = self.df
-        comments_df = df[df["# Time (s)"].astype(
-            str).str.contains("#")].copy(deep=True)
+        comments_df = df[df["# Time (s)"].astype(str).str.contains("#")].copy(deep=True)
         comments_df["Time (s)"] = comments_df["# Time (s)"].apply(
             lambda x: re.search(r"t=([\d\.]+)", x).group(1)
             if re.search(r"t=([\d\.]+)", x)
@@ -244,14 +243,13 @@ class Rocket:
         return filtered_df
 
     def merge_dataframes(self) -> pd.DataFrame:
-        """ Merges the filtered DataFrame with the comments DataFrame.
+        """Merges the filtered DataFrame with the comments DataFrame.
 
         Returns:
             pd.DataFrame:  DataFrame containing the merged data
         """
 
-        merged_df = self.filtered_df.merge(
-            self.comments_df, on="Time (s)", how="left")
+        merged_df = self.filtered_df.merge(self.comments_df, on="Time (s)", how="left")
         # Dropping the 'Time (s)' column from the merged DataFrame
         merged_df.drop(columns=["Time (s)"], inplace=True)
 
@@ -280,23 +278,39 @@ class Rocket:
         return float(event_times.iloc[0]) if not event_times.empty else None
 
     def plot_Flight_Profile(self) -> None:
-        """ Plot the Flight Profile data.
-        """
+        """Plot the Flight Profile data."""
         df = self.merged_df.copy(deep=True)
         # Calculate maximum and minimum values for plotting
-        max_altitude = math.ceil(
-            df["Altitude (ft)"].max() / self.ALTITUDE_INCREMENTS) * self.ALTITUDE_INCREMENTS
-        max_vertical_motion = math.ceil(max(df["Vertical velocity (m/s)"].max(), df["Vertical acceleration (m/s²)"].max(
-        )) / self.VERTICAL_MOTION_INCREMENTS) * self.VERTICAL_MOTION_INCREMENTS
-        min_vertical_motion = math.floor(min(df["Vertical velocity (m/s)"].min(
-        ), df["Vertical acceleration (m/s²)"].min()) / self.VERTICAL_MOTION_INCREMENTS) * self.VERTICAL_MOTION_INCREMENTS
+        max_altitude = (
+            math.ceil(df["Altitude (ft)"].max() / self.ALTITUDE_INCREMENTS)
+            * self.ALTITUDE_INCREMENTS
+        )
+        max_vertical_motion = (
+            math.ceil(
+                max(
+                    df["Vertical velocity (m/s)"].max(),
+                    df["Vertical acceleration (m/s²)"].max(),
+                )
+                / self.VERTICAL_MOTION_INCREMENTS
+            )
+            * self.VERTICAL_MOTION_INCREMENTS
+        )
+        min_vertical_motion = (
+            math.floor(
+                min(
+                    df["Vertical velocity (m/s)"].min(),
+                    df["Vertical acceleration (m/s²)"].min(),
+                )
+                / self.VERTICAL_MOTION_INCREMENTS
+            )
+            * self.VERTICAL_MOTION_INCREMENTS
+        )
 
         # Create plot
         fig, ax1 = plt.subplots(figsize=(12, 6))
 
         # Plot Altitude
-        ax1.plot(df["Time (s)"], df["Altitude (ft)"],
-                 "k:", label="Altitude (ft)")
+        ax1.plot(df["Time (s)"], df["Altitude (ft)"], "k:", label="Altitude (ft)")
         ax1.set_xlabel("TIME (s)")
         ax1.set_ylabel("ALTITUDE (ft)")
         ax1.set_xlim(0, df["Time (s)"].max())
@@ -308,15 +322,29 @@ class Rocket:
 
         # Plot Vertical velocity and acceleration
         ax2 = ax1.twinx()
-        ax2.plot(df["Time (s)"], df["Vertical velocity (m/s)"],
-                 "k--", label="Vertical velocity (m/s)")
-        ax2.plot(df["Time (s)"], df["Vertical acceleration (m/s²)"],
-                 "k-", label="Vertical acceleration (m/s²)")
+        ax2.plot(
+            df["Time (s)"],
+            df["Vertical velocity (m/s)"],
+            "k--",
+            label="Vertical velocity (m/s)",
+        )
+        ax2.plot(
+            df["Time (s)"],
+            df["Vertical acceleration (m/s²)"],
+            "k-",
+            label="Vertical acceleration (m/s²)",
+        )
         ax2.set_ylabel(
-            "VERTICAL VELOCITY (m/s); VERTICAL ACCELERATION (m/s²)", labelpad=15)
+            "VERTICAL VELOCITY (m/s); VERTICAL ACCELERATION (m/s²)", labelpad=15
+        )
         ax2.set_ylim(min_vertical_motion, max_vertical_motion)
-        ax2.set_yticks(np.arange(min_vertical_motion,
-                                 max_vertical_motion + 1, self.VERTICAL_MOTION_INCREMENTS))
+        ax2.set_yticks(
+            np.arange(
+                min_vertical_motion,
+                max_vertical_motion + 1,
+                self.VERTICAL_MOTION_INCREMENTS,
+            )
+        )
 
         # Combine legends
         lines1, labels1 = ax1.get_legend_handles_labels()
@@ -332,14 +360,13 @@ class Rocket:
             "LAUNCH/IGNITION": self.DISPLAY_LAUNCH,
             "APOGEE": self.DISPLAY_APOGEE,
             "GROUND_HIT/SIMULATION_END": self.DISPLAY_GROUND_HIT,
-            "LAUNCH_ROD": self.DISPLAY_LAUNCH_ROD
+            "LAUNCH_ROD": self.DISPLAY_LAUNCH_ROD,
         }
         for event, display in events.items():
             if display:
                 event_time = self.find_event_time(event)
                 if event_time is not None:
-                    ax1.axvline(x=event_time, color="r",
-                                linestyle="-", label=event)
+                    ax1.axvline(x=event_time, color="r", linestyle="-", label=event)
 
         plt.show()
 
@@ -355,10 +382,22 @@ class Rocket:
 
 def main():
     # Usage
-    csv_file_path = (
-        r"C:\Users\iash.bashir\Downloads\Aerospace\project\data\Rocket Data.csv"
-    )
-    profile = Rocket(csv_file_path)
+    data_file_name = "Rocket Data.csv"
+
+    # Get the directory of the current script
+    script_dir = os.path.dirname(__file__)
+
+    # Go up one level to the project directory
+    project_dir = os.path.join(script_dir, "..")
+
+    # Construct the path to the CSV file
+    csv_path = os.path.join(project_dir, "data", data_file_name)
+
+    # Normalize the path (optional but recommended)
+    csv_path = os.path.normpath(csv_path)
+
+    profile = Rocket(csv_path)
+    # profile = Rocket(csv_file_path)
     profile.set_motor_name("M2100")
     profile.set_rocket_length(2500)
     profile.set_altitude_increments(1000)
