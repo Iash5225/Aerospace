@@ -6,7 +6,15 @@ import math
 
 
 class Rocket:
-    def __init__(self, filepath):
+    """ Rocket class for plotting data from a CSV file.
+    """    
+    
+    def __init__(self, filepath:str)->None:
+        """  Initialise the Rocket class for plotting data from a CSV file.
+
+        Args:
+            filepath (str):  The path to the CSV file containing the data.
+        """        
         # Default values for constants
         self.DATA_FILEPATH = filepath
         self.MOTOR_NAME = "M2100F"
@@ -32,48 +40,116 @@ class Rocket:
         self.merged_df = self.merge_dataframes()
 
     def set_PLOT_SAVE(self, state: bool) -> None:
+        """ Set the PLOT_SAVE constant to True or False.
+
+        Args:
+            state (bool):  True or False
+        """        
         self.PLOT_SAVE = state
 
     def set_DISPLAY_MOTOR_BURNOUT(self, state: bool) -> None:
+        """ Set the DISPLAY_MOTOR_BURNOUT constant to True or False.
+
+        Args:
+            state (bool):  True or False
+        """        
         self.DISPLAY_MOTOR_BURNOUT = state
 
     def set_DISPLAY_LAUNCHT(self, state: bool) -> None:
+        """ Set the DISPLAY_LAUNCH constant to True or False.
+
+        Args:
+            state (bool):  True or False
+        """        
         self.DISPLAY_LAUNCH = state
 
     def set_DISPLAY_APOGEE(self, state: bool) -> None:
+        """ Set the DISPLAY_APOGEE constant to True or False.
+
+        Args:
+            state (bool):  True or False
+        """        
         self.DISPLAY_APOGEE = state
 
     def set_DISPLAY_GROUND_HIT(self, state: bool) -> None:
+        """ Set the DISPLAY_GROUND_HIT constant to True or False.
+
+        Args:
+            state (bool):  True or False
+        """        
         self.DISPLAY_GROUND_HIT = state
 
     def set_DISPLAY_LAUNCH_ROD(self, state: bool) -> None:
+        """ Set the DISPLAY_LAUNCH_ROD constant to True or False.
+
+        Args:
+            state (bool):  True or False
+        """        
         self.DISPLAY_LAUNCH_ROD = state
 
-    def set_data_file_Path(self, filepath):
+    def set_data_file_Path(self, filepath:str)->None:
+        """ Set the DATA_FILEPATH constant to the given filepath.
+
+        Args:
+            filepath (str):  _description_
+        """        
         self.DATA_FILEPATH = filepath
 
-    def set_motor_name(self, motor_name):
+    def set_motor_name(self, motor_name:str)->None:
+        """ Set the MOTOR_NAME constant to the given motor name.
+
+        Args:
+            motor_name (str): Motor name
+        """        
         self.MOTOR_NAME = motor_name
 
-    def set_rocket_length(self, length):
+    def set_rocket_length(self, length:int)->None:
+        """ Set the ROCKET_LENGTH constant to the given length.
+
+        Args:
+            length (int):  Rocket length
+        """        
         self.ROCKET_LENGTH = length
 
-    def set_altitude_increments(self, increments):
+    def set_altitude_increments(self, increments:int)->None:
+        """ Set the ALTITUDE_INCREMENTS constant to the given increments.
+
+        Args:
+            increments (int):  Altitude increments
+        """        
         self.ALTITUDE_INCREMENTS = increments
 
-    def set_vertical_motion_increments(self, increments):
+    def set_vertical_motion_increments(self, increments:int)->None:
+        """ Set the VERTICAL_MOTION_INCREMENTS constant to the given increments.
+
+        Args:
+            increments (int):  Vertical motion increments
+        """        
         self.VERTICAL_MOTION_INCREMENTS = increments
 
-    def set_average_thrust(self, thrust):
-        self.AVERAGE_THRUST = thrust
+    def set_average_thrust(self, average_thrust:float)->None:
+        """ Set the AVERAGE_THRUST constant to the given thrust.
 
-    def set_output_folder_path(self, path):
+        Args:
+            average_thrust (float):  Average thrust
+        """        
+        self.AVERAGE_THRUST = average_thrust
+
+    def set_output_folder_path(self, path:str)->None:
+        """ Set the OUTPUT_FOLDER_PATH constant to the given path.
+
+        Args:
+            path (str):  Output folder path
+        """        
         self.OUTPUT_FOLDER_PATH = path
 
-    def read_csv_file(self):
-        """
-        Reads a CSV file and returns a DataFrame.
-        """
+    def read_csv_file(self) -> pd.DataFrame:
+        """ Read the CSV file and return a DataFrame.
+
+        Returns:
+            pd.DataFrame:  DataFrame containing the data from the CSV file
+        """        
+
         try:
             df = pd.read_csv(self.DATA_FILEPATH, delimiter=",", skiprows=6)
             return df
@@ -104,10 +180,12 @@ class Rocket:
         """
         return " ".join(word for word in text.split() if word.isupper())
 
-    def extract_comments(self):
-        """
-        Reads a CSV file and extracts rows that contain comments in the '# Time (s)' column.
-        """
+    def extract_comments(self) -> pd.DataFrame:
+        """  Extracts the comments from the CSV file and returns a DataFrame.
+
+        Returns:
+            pd.DataFrame:  DataFrame containing the comments from the CSV file
+        """        
         df = self.df
         comments_df = df[df["# Time (s)"].astype(
             str).str.contains("#")].copy(deep=True)
@@ -150,11 +228,11 @@ class Rocket:
 
         return comments_df[["Time (s)", "Event"]]
 
-    def filter_comments_from_csv(self):
+    def filter_comments_from_csv(self)-> pd.DataFrame:
         """Filters out rows that contain comments from the dataframe.
 
         Returns:
-            _type_: _description_
+            pd.DataFrame:  DataFrame containing the filtered data
         """
         df = self.df.copy(deep=True)
         filtered_df = df[~df["# Time (s)"].astype(str).str.contains("#")].copy(
@@ -165,11 +243,14 @@ class Rocket:
         )
         return filtered_df
 
-    def merge_dataframes(self):
-        # Implementation of merge_dataframes
-        """
-        Merges the filtered DataFrame with the comments DataFrame.
-        """
+    def merge_dataframes(self)->pd.DataFrame:
+        """ Merges the filtered DataFrame with the comments DataFrame.
+
+        Returns:
+            pd.DataFrame:  DataFrame containing the merged data
+        """        
+
+
         merged_df = self.filtered_df.merge(
             self.comments_df, on="Time (s)", how="left")
         # Dropping the 'Time (s)' column from the merged DataFrame
@@ -199,8 +280,9 @@ class Rocket:
         ]
         return float(event_times.iloc[0]) if not event_times.empty else None
 
-    def plot_Flight_Profile(self):
-        """Plot Flight Profile data."""
+    def plot_Flight_Profile(self)->None:
+        """ Plot the Flight Profile data.
+        """   
         df = self.merged_df.copy(deep=True)
         # df.rename(columns=rename_dict, inplace=True)
 
