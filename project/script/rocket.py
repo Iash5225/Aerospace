@@ -23,13 +23,15 @@ class Rocket:
         self.VERTICAL_MOTION_INCREMENTS = 50
         self.AVERAGE_THRUST = 0
         self.OUTPUT_FOLDER_PATH = r"project\output"
+        self.STABILITY_UNIT = 'cal'  # 'cal' or '%'
+        self.SHOW_FULL_STABILITY_GRAPH = True  # True or False
 
         # Save
         self.PLOT_SAVE = False
         # Events
-        self.DISPLAY_MOTOR_BURNOUT = True
+        self.DISPLAY_MOTOR_BURNOUT = False
         self.DISPLAY_LAUNCH = False
-        self.DISPLAY_APOGEE = True
+        self.DISPLAY_APOGEE = False
         self.DISPLAY_GROUND_HIT = False
         self.DISPLAY_LAUNCH_ROD = False
 
@@ -55,7 +57,7 @@ class Rocket:
         """
         self.DISPLAY_MOTOR_BURNOUT = state
 
-    def set_DISPLAY_LAUNCHT(self, state: bool) -> None:
+    def set_DISPLAY_LAUNCH(self, state: bool) -> None:
         """Set the DISPLAY_LAUNCH constant to True or False.
 
         Args:
@@ -374,10 +376,79 @@ class Rocket:
         if self.PLOT_SAVE:
             filename = "/Flight_Profile.png"
             fig.savefig(self.OUTPUT_FOLDER_PATH + filename)
+     
+    def plot_Stability(self)->None:
+        """Plot Stability data."""
+        df = self.merged_df.copy(deep=True)
+        # df.rename(columns=rename_dict, inplace=True)
+
+        df_cleaned = df.dropna(subset=["Stability margin calibers (​)"])
+        df_cleaned["stability margin percentage"] = (
+            (df_cleaned["CP location (mm)"] - df_cleaned["CG location (mm)"])
+            / self.ROCKET_LENGTH
+            * 100
+        )
+
+        fig, ax1 = plt.subplots(figsize=(12, 6))
+        ax1.plot(
+            df_cleaned["Time (s)"],
+            df_cleaned["Stability margin calibers (​)"],
+            "k-",
+            label="Stability(cal)",
+        )
+        ax2 = ax1.twinx()
+        ax2.plot(
+            df_cleaned["Time (s)"],
+            df_cleaned["CP location (mm)"],
+            "r--",
+            label="CP location (mm)",
+        )
+        ax2.plot(
+            df_cleaned["Time (s)"],
+            df_cleaned["CG location (mm)"],
+            "b--",
+            label="CG location (mm)",
+        )
+
+        ax1.set_xlabel("TIME (s)")
+        ax1.set_ylabel("STABILITY (cal)")
+        ax2.set_ylabel("LOCATION (mm)")
+        ax1.set_xlim(0, df["Time (s)"].max())
+        ax1.grid(True)
+
+        # Combine legends from ax1 and ax2
+        lines, labels = ax1.get_legend_handles_labels()
+        lines2, labels2 = ax2.get_legend_handles_labels()
+        ax1.legend(lines + lines2, labels + labels2, loc="upper right")
+
+        fig.tight_layout()
+        plt.subplots_adjust(top=0.95)
+        plt.title(f"{self.MOTOR_NAME} Motor - Stability(cal) vs Time(s)")
+        
+        # Plot event markers
+        events = {
+            "BURNOUT/EJECTION_CHARGE": self.DISPLAY_MOTOR_BURNOUT,
+            "LAUNCH/IGNITION": self.DISPLAY_LAUNCH,
+            "APOGEE": self.DISPLAY_APOGEE,
+            "GROUND_HIT/SIMULATION_END": self.DISPLAY_GROUND_HIT,
+            "LAUNCH_ROD": self.DISPLAY_LAUNCH_ROD,
+        }
+        for event, display in events.items():
+            if display:
+                event_time = self.find_event_time(event)
+                if event_time is not None:
+                    ax1.axvline(x=event_time, color="r", linestyle="-", label=event)
+        plt.show()
+        
+        # Save plot if required
+        if self.PLOT_SAVE:
+            filename = "/Stability.png"
+            fig.savefig(self.OUTPUT_FOLDER_PATH + filename)       
 
     def run(self):
         # Optionally, you can create a run method to execute the main logic
-        self.plot_Flight_Profile()
+        # self.plot_Flight_Profile()
+        self.plot_Stability()
 
 
 def main():
@@ -395,13 +466,15 @@ def main():
 
     # Normalize the path (optional but recommended)
     csv_path = os.path.normpath(csv_path)
-
+    
     profile = Rocket(csv_path)
-    # profile = Rocket(csv_file_path)
     profile.set_motor_name("M2100")
     profile.set_rocket_length(2500)
     profile.set_altitude_increments(1000)
     # ... other settings as needed
+    profile.set_DISPLAY_LAUNCH(True)
+    profile.set_DISPLAY_MOTOR_BURNOUT(True)
+    profile.set_DISPLAY_APOGEE(False)
     profile.run()
 
 
