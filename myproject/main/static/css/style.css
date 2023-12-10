@@ -1,8 +1,41 @@
+html,
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    height: 100%;
     margin: 0;
-    padding: 0;
 }
 
-/* If you have additional custom styles, they can remain here */
+
+body {
+    display: flex;
+    flex-direction: column;
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+}
+
+.content-wrapper {
+    flex: 1;
+}
+
+.hero-section {
+    background: url('{% static "myproject/main/static/images/OpenRocket_icon.png" %}') no-repeat center center;
+    background-size: cover;
+    color: #fff;
+    padding: 100px 0;
+}
+
+/* Custom button styling */
+.btn-primary,
+.btn-secondary,
+.btn-success {
+    padding: 15px 20px;
+    font-size: 18px;
+    border-width: 2px;
+}
+
+/* Footer styling */
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 1em 0;
+}
