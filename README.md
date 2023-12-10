@@ -20,13 +20,18 @@ To ensure a consistent environment for all users, it's recommended to use a virt
 - On Unix or MacOS: `source venv/bin/activate`
 6. Once the virtual environment is activated, install the required packages: `pip install -r requirements.txt`
 
-## How to Use
+## How to Use - Locally
 
-1. Navigate to the web interface.
-2. Upload your CSV data file.
-3. Choose the type of plot you want to generate.
-4. Interact with the visualized data.
-5. ```python manage.py runserver``` to run the server.
+1. ```python manage.py makemigrations``` to create migrations for those changes
+1. ```python manage.py runserver``` to run the server.
+
+
+## How to Use - Heroku
+
+1. ```heroku login``` to login to heroku
+2. ```git push heroku main``` to push to heroku
+3. ```heroku run python manage.py migrate``` to migrate the database
+4. 
 
 ## Examples
 [Include screenshots or examples of the tool in use]
