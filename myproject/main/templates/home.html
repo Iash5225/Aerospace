@@ -1,0 +1,27 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Rocket Simulation Tool</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+    <div class="header">
+        <h1>Welcome to the Rocket Simulation Tool Website</h1>
+    </div>
+
+    <div class="content">
+        <h2>Rocket Simulation Tool</h2>
+        <div class="button-container">
+            <button onclick="location.href='#';">Plot Flight Profile</button>
+            <button onclick="location.href='#';">Plot Drag Coefficient vs Mach</button>
+            <button onclick="location.href='#';">Plot Stability vs Time</button>
+        </div>
+    </div>
+
+    <script src="{% static 'js/script.js' %}"></script>
+</body>
+
+</html>
