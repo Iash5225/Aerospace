@@ -1,23 +1,59 @@
 from django.shortcuts import render
+from .rocket import Rocket
+from django.core.files.storage import FileSystemStorage
 
 def index(request):
     return render(request, 'render/index.html', {})
 
 
-def flight_profile(request):
+def plot_view(request):
     plot_image = None
+
+    if request.method == 'POST':
+        if 'csv_file' in request.FILES:
+            csv_file = request.FILES['csv_file']
+            fs = FileSystemStorage()
+            filename = fs.save(csv_file.name, csv_file)
+            uploaded_file_url = fs.url(filename)
+
+            # Process the file and generate plot
+            rocket = Rocket(uploaded_file_url)
+            rocket.set_motor_name("M2100")  # Set parameters as needed
+            # ... other settings
+            rocket.run()
+            # Implement this method in Rocket class
+            plot_image = rocket.get_plot_image_url()
+
+    return render(request, 'yourapp/plot.html', {'plot_image': plot_image})
+
+
+def flight_profile(request):
+    plot_url = None
     motor_name = ""
 
     if request.method == 'POST':
         motor_name = request.POST.get('motorName')
 
-        # Process the motor name and generate the plot
-        # For example, generate a plot and save it as an image or generate a plot URL
+        if 'csv_file' in request.FILES:
+            csv_file = request.FILES['csv_file']
+            fs = FileSystemStorage()
+            filename = fs.save(csv_file.name, csv_file)
+            # uploaded_file_url = fs.url(filename)
+            uploaded_file_path = fs.path(filename)  # Get the actual file path
 
-        plot_image = 'path_to_plot_image'  # Replace with actual plot path or URL
+            # Initialize Rocket class with the uploaded CSV file
+            rocket = Rocket(uploaded_file_path)
+            rocket.set_motor_name(motor_name)
 
-    # Render the same page with the form and plot (if available)
-    return render(request, 'flight_profile.html', {'motor_name': motor_name, 'plot_image': plot_image})
+            # Generate the plot
+            rocket.plot_Flight_Profile()  # Ensure this method saves the plot image
+
+            # Get the URL or path of the saved plot image
+            # plot_url = rocket.get_plot_image_url()  # Implement this method in Rocket class
+            plot_url = rocket.plot_Flight_Profile()
+
+    return render(request, 'flight_profile.html', {'plot_url': plot_url})
+
 
 
 def drag_coefficient(request):

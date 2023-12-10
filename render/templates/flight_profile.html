@@ -9,7 +9,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>UWA Aerospace</title>
+    <!-- <title>UWA Aerospace</title> -->
+    <title style="color: skyblue">UWA Aerospace</title>
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
         integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
@@ -49,26 +50,40 @@
     <div class="container my-5">
         <h2 class="text-center mb-4">Flight Profile Simulation</h2>
         <p class="text-center">Content related to Flight Profile Simulation goes here.</p>
-        <!-- Add your specific content or scripts here -->
-    </div>
-
-    <!-- Form for Motor Name Input -->
-    <div class="container my-5">
-        <form method="post">
-            {% csrf_token %}
-            <label for="motorName">Motor Name:</label>
-            <input type="text" id="motorName" name="motorName" value="{{ motor_name }}">
-            <button type="submit">Plot</button>
-        </form>
-    </div>
     
-    <!-- Plot Image Display -->
-    {% if plot_image %}
-    <div class="container my-5">
-        <h2>Plot for Motor: {{ motor_name }}</h2>
-        <img src="{{ plot_image }}" alt="Plot Image">
+        <!-- Form for Motor Name Input -->
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <form method="post" class="form-group">
+                    {% csrf_token %}
+                    <label for="motorName">Motor Name:</label>
+                    <input type="text" id="motorName" name="motorName" value="{{ motor_name }}" class="form-control">
+                    <!-- <button type="submit" class="btn btn-primary mt-3">Submit</button> -->
+                </form>
+            </div>
+        </div>
+    
+        <!-- File Upload Form -->
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <form method="post" enctype="multipart/form-data" class="form-group">
+                    {% csrf_token %}
+                    <label for="csvFile">Upload CSV File:</label>
+                    <input type="file" id="csvFile" name="csv_file" accept=".csv" class="form-control-file">
+                    <button type="submit" class="btn btn-primary mt-3">Upload and Plot</button>
+                </form>
+            </div>
+        </div>
+    
+        <!-- Plot Image Display -->
+        {% if plot_image %}
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <img src="{{ plot_image }}" alt="Plot Image" class="img-fluid">
+            </div>
+        </div>
+        {% endif %}
     </div>
-    {% endif %}
     <!-- Form End -->
 
     <!-- Footer -->

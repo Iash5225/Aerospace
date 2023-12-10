@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from django.conf.urls.static import static
+from django.conf import settings
 
 # urlpatterns = [
 #     path('', views.index, name='index'),
@@ -13,4 +15,10 @@ urlpatterns = [
     path('stability_time/', views.stability_time, name='stability_time'),
     path('motor_thrust_curve/', views.motor_thrust_curve,
          name='motor_thrust_curve'),
+    path('plot_view/', views.plot_view, name='plot_view'),
 ]
+
+# This is only needed when running locally for development:
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL,
+                          document_root=settings.MEDIA_ROOT)

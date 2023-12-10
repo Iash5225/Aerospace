@@ -39,3 +39,55 @@ footer {
     text-align: center;
     padding: 1em 0;
 }
+
+form {
+    margin: 20px 0;
+}
+
+input[type="text"],
+input[type="file"] {
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    width: calc(100% - 22px);
+    /* Adjust width as per padding and border */
+}
+
+input[type="submit"],
+button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+input[type="submit"]:hover,
+button:hover {
+    background-color: #0056b3;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+
+    .btn-primary,
+    .btn-secondary,
+    .btn-success {
+        width: 100%;
+        margin-top: 10px;
+    }
+}
+
+.btn-primary:hover,
+.btn-secondary:hover,
+.btn-success:hover {
+    background-color: #0056b3;
+    /* Darken the button color on hover */
+    color: white;
+}
