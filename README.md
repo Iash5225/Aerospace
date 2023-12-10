@@ -20,18 +20,10 @@ To ensure a consistent environment for all users, it's recommended to use a virt
 - On Unix or MacOS: `source venv/bin/activate`
 6. Once the virtual environment is activated, install the required packages: `pip install -r requirements.txt`
 
-## How to Use - Locally
+## How to Use - OnRead
 
-1. ```python manage.py makemigrations``` to create migrations for those changes
-1. ```python manage.py runserver``` to run the server.
-
-
-## How to Use - Heroku
-
-1. ```heroku login``` to login to heroku
-2. ```git push heroku main``` to push to heroku
-3. ```heroku run python manage.py migrate``` to migrate the database
-4. 
+1. ```gunicorn mysite.wsgi:application``` to locally run the server
+2. 
 
 ## Examples
 [Include screenshots or examples of the tool in use]
