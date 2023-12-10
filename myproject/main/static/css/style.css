@@ -17,7 +17,7 @@ body {
 }
 
 .hero-section {
-    background: url('{% static "myproject/main/static/images/OpenRocket_icon.png" %}') no-repeat center center;
+    background: url('../images/OpenRocket_icon.png') no-repeat center center;
     background-size: cover;
     color: #fff;
     padding: 100px 0;

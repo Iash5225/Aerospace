@@ -26,6 +26,7 @@ To ensure a consistent environment for all users, it's recommended to use a virt
 2. Upload your CSV data file.
 3. Choose the type of plot you want to generate.
 4. Interact with the visualized data.
+5. ```python manage.py runserver``` to run the server.
 
 ## Examples
 [Include screenshots or examples of the tool in use]
