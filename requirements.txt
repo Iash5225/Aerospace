@@ -2,3 +2,6 @@ pandas
 nicegui
 matplotlib
 django
+gunicorn
+django_heroku
+ 
