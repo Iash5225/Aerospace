@@ -19,11 +19,12 @@ To ensure a consistent environment for all users, it's recommended to use a virt
 - On Windows: `venv\Scripts\activate`
 - On Unix or MacOS: `source venv/bin/activate`
 6. Once the virtual environment is activated, install the required packages: `pip install -r requirements.txt`
+- If on Windows you must install the following package manually with: `pip install waitress`
 
 ## How to Use - OnRead
 
-1. ```gunicorn mysite.wsgi:application``` to locally run the server
-2. 
+1. On Linux ```gunicorn mysite.wsgi:application``` to locally run the server
+2. On Windows ```waitress-serve --listen=127.0.0.1:8080 mysite.wsgi:application``` to locally run the server
 
 ## Examples
 [Include screenshots or examples of the tool in use]
