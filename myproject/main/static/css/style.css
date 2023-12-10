@@ -5,9 +5,4 @@ body {
     padding: 0;
 }
 
-.header {
-    background-color: #333;
-    color: white;
-    text-align: center;
-    padding: 1em 0;
-}
+/* If you have additional custom styles, they can remain here */
