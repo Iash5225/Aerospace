@@ -42,14 +42,23 @@ class Rocket:
         self.filtered_df = self.filter_comments_from_csv()
         self.merged_df = self.merge_dataframes()
         
+
     def save_plot(self, fig, plot_name):
-        """
-        Save the plot to the media directory and return the URL.
-        """
-        media_path = settings.MEDIA_ROOT
-        plot_path = os.path.join(media_path, plot_name)
-        fig.savefig(plot_path)
-        return os.path.join(settings.MEDIA_URL, plot_name)
+        try:
+            media_path = settings.MEDIA_ROOT
+            plot_path = os.path.join(media_path, plot_name)
+            fig.savefig(plot_path)
+            return os.path.join(settings.MEDIA_URL, plot_name)
+        except Exception as e:
+            print(f"Error saving plot: {e}")
+            return None
+        
+
+    def delete_temporary_file(self,file_path):
+        try:
+            os.remove(file_path)
+        except OSError as e:
+            print(f"Error deleting temporary file: {e}")
         
     def set_stability_unit(self, unit: str) -> None:
         """Set the STABILITY_UNIT variable to either 'cal' or '%'.
@@ -464,7 +473,7 @@ class Rocket:
         # Plot event markers
         self.plot_event_markers(ax1)
 
-        plt.show()
+        # plt.show()
 
         # Save plot if required
         if self.PLOT_SAVE:

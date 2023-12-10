@@ -44,6 +44,7 @@ def flight_profile(request):
             # Initialize Rocket class with the uploaded CSV file
             rocket = Rocket(uploaded_file_path)
             rocket.set_motor_name(motor_name)
+            rocket.set_PLOT_SAVE(True)
 
             # Generate the plot
             rocket.plot_Flight_Profile()  # Ensure this method saves the plot image
@@ -51,6 +52,9 @@ def flight_profile(request):
             # Get the URL or path of the saved plot image
             # plot_url = rocket.get_plot_image_url()  # Implement this method in Rocket class
             plot_url = rocket.plot_Flight_Profile()
+            
+            # Delete the temporary file
+            rocket.delete_temporary_file(plot_url)
 
     return render(request, 'flight_profile.html', {'plot_url': plot_url})
 
