@@ -4,4 +4,6 @@ matplotlib
 django
 gunicorn
 django_heroku
+whitenoise
+psycopg2
  
