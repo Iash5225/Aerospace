@@ -15,7 +15,7 @@ urlpatterns = [
     path('stability_time/', views.stability_time, name='stability_time'),
     path('motor_thrust_curve/', views.motor_thrust_curve,
          name='motor_thrust_curve'),
-    path('plot_view/', views.plot_view, name='plot_view'),
+    # path('plot_view/', views.plot_view, name='plot_view'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # This is only needed when running locally for development:

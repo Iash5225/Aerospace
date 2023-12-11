@@ -6,4 +6,5 @@ gunicorn
 django_heroku
 whitenoise
 psycopg2
+waitress
  
