@@ -37,14 +37,8 @@ def flight_profile(request):
 
         if 'csv_file' in request.FILES:
             csv_file = request.FILES['csv_file']
-            # fs = FileSystemStorage()
-            # filename = fs.save(csv_file.name, csv_file)
-            # # uploaded_file_url = fs.url(filename)
-            # uploaded_file_path = fs.path(filename)  # Get the actual file path
-
             # Initialize Rocket class with the uploaded CSV file
             rocket = Rocket(csv_file.temporary_file_path())
-            # rocket = Rocket(uploaded_file_path)
             rocket.set_motor_name(motor_name)
             rocket.set_PLOT_SAVE(True)
 
@@ -52,11 +46,7 @@ def flight_profile(request):
             rocket.plot_Flight_Profile()  # Ensure this method saves the plot image
 
             # Get the URL or path of the saved plot image
-            # plot_url = rocket.get_plot_image_url()  # Implement this method in Rocket class
             plot_url = rocket.plot_Flight_Profile()
-            
-            # Delete the temporary file
-            # rocket.delete_temporary_file(plot_url)
 
     return render(request, 'flight_profile.html', {'plot_url': plot_url})
 
