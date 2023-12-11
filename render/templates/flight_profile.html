@@ -1,98 +1,40 @@
-{% load static %}
+{% extends "base.html" %}
 
-<!doctype html>
-<html lang="en">
+{% block title %}Flight Profile - UWA Aerospace{% endblock %}
 
-<head>
-    <!-- Head content same as your main page -->
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+{% block content %}
+<!-- Content for Flight Profile -->
+<div class="container my-5">
+    <h2 class="text-center mb-4">Flight Profile Simulation</h2>
+    <p class="text-center">Content related to Flight Profile Simulation goes here.</p>
 
-    <!-- <title>UWA Aerospace</title> -->
-    <title style="color: skyblue">UWA Aerospace</title>
-
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
-        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-</head>
-
-<body>
-    <!-- Navigation Bar -->
-    <!-- Same as your main page -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="#">RocketSim</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item active">
-                        <a class="nav-link" href="#">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Features</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Pricing</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">About</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Content for Flight Profile -->
-    <div class="container my-5">
-        <h2 class="text-center mb-4">Flight Profile Simulation</h2>
-        <p class="text-center">Content related to Flight Profile Simulation goes here.</p>
+    <!-- Combined Form for Motor Name Input and File Upload -->
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <form method="post" enctype="multipart/form-data" class="form-group">
+                {% csrf_token %}
     
-        <!-- Form for Motor Name Input -->
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <form method="post" class="form-group">
-                    {% csrf_token %}
-                    <label for="motorName">Motor Name:</label>
-                    <input type="text" id="motorName" name="motorName" value="{{ motor_name }}" class="form-control">
-                    <!-- <button type="submit" class="btn btn-primary mt-3">Submit</button> -->
-                </form>
-            </div>
-        </div>
+                <!-- Motor Name Input -->
+                <label for="motorName">Motor Name:</label>
+                <input type="text" id="motorName" name="motorName" value="{{ motor_name }}" class="form-control mb-3">
     
-        <!-- File Upload Form -->
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <form method="post" enctype="multipart/form-data" class="form-group">
-                    {% csrf_token %}
-                    <label for="csvFile">Upload CSV File:</label>
-                    <input type="file" id="csvFile" name="csv_file" accept=".csv" class="form-control-file">
-                    <button type="submit" class="btn btn-primary mt-3">Upload and Plot</button>
-                </form>
-            </div>
-        </div>
+                <!-- File Upload Input -->
+                <label for="csvFile">Upload CSV File:</label>
+                <input type="file" id="csvFile" name="csv_file" accept=".csv" class="form-control-file mb-3">
     
-        <!-- Plot Image Display -->
-        {% if plot_url %}
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <img src="{{ plot_url }}" alt="Plot Image" class="img-fluid">
-            </div>
+                <!-- Single Submit Button -->
+                <button type="submit" class="btn btn-primary">Upload and Plot</button>
+            </form>
         </div>
-        {% endif %}
     </div>
-    <!-- Form End -->
 
-    <!-- Footer -->
-    <!-- Same as your main page -->
-    <footer class="bg-dark text-white text-center py-3">
-        <p>&copy; 2023 Rocket Simulation Tool. All rights reserved.</p>
-    </footer>
-
-    <script src="{% static 'js/script.js' %}"></script>
-</body>
-
-</html>
+    <!-- Plot Image Display -->
+    {% if plot_url %}
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <img src="{{ plot_url }}" alt="Plot Image" class="img-fluid">
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
