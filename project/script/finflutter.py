@@ -119,27 +119,37 @@ class FinFlutter:
         
 
     def plot_flutter_velocity(self, max_thickness, thickness_increments, design_thickness=None, max_velocity=None):
-        thickness_list = np.arange(0, max_thickness + thickness_increments, thickness_increments)
-        flutter_velocity_list = [self.calculate_flutter_velocity(thickness) for thickness in thickness_list]
-        safety_factor_list = [self.calculate_safety_factor(thickness, max_velocity) for thickness in thickness_list]
+        thickness_list = np.arange(
+            0, max_thickness + thickness_increments, thickness_increments)
+        flutter_velocity_list = [self.calculate_flutter_velocity(
+            thickness) for thickness in thickness_list]
 
         fig, ax1 = plt.subplots(figsize=(12, 6))
 
-        color = 'tab:blue'
         ax1.set_xlabel('Thickness (mm)')
-        ax1.set_ylabel('Flutter Velocity (m/s)', color=color)
-        ax1.plot(thickness_list, flutter_velocity_list, label='Flutter Velocity', marker='o', color=color)
-        ax1.tick_params(axis='y', labelcolor=color)
+        ax1.set_ylabel('Flutter Velocity (m/s)', color='tab:blue')
+        ax1.plot(thickness_list, flutter_velocity_list,
+                label='Flutter Velocity', marker='o', color='tab:blue')
+        ax1.tick_params(axis='y', labelcolor='tab:blue')
 
-        # Add max rocket velocity horizontal line
+        # Add max rocket velocity horizontal line and set it as safety factor of 1
         if max_velocity is not None:
-            ax1.axhline(y=max_velocity, color='purple', linestyle='--', linewidth=2, label=f'Max Rocket Velocity: {max_velocity}m/s')
+            ax1.axhline(y=max_velocity, color='purple', linestyle='--',
+                        linewidth=2, label=f'Max Rocket Velocity: {max_velocity}m/s')
 
+        # Set up the second y-axis for the safety factor
         ax2 = ax1.twinx()
-        color = 'tab:orange'
-        ax2.set_ylabel('Safety Factor', color=color)
-        # ax2.plot(thickness_list, safety_factor_list, label='Safety Factor', marker='x', color=color)
-        ax2.tick_params(axis='y', labelcolor=color)
+        ax2.set_ylabel('Safety Factor', color='tab:red')
+        ax2.tick_params(axis='y', labelcolor='tab:red')
+
+        # # Since max_velocity corresponds to a safety factor of 1, we set the max velocity line here
+        # if max_velocity is not None:
+        #     # No label needed, as it's the same line
+        #     ax2.axhline(y=1, color='purple', linestyle='--', linewidth=2)
+
+        # Rescale the safety factor axis based on the max_velocity
+        # Set the top limit to maintain the 1 ratio
+        ax2.set_ylim(bottom=0, top=max(flutter_velocity_list) / max_velocity)
 
         # Highlight design thickness and max thickness points if provided
         if design_thickness is not None:
@@ -152,18 +162,13 @@ class FinFlutter:
                         linewidth=2, label=f'Design Safety Factor: {design_safety_factor:.2f}')
 
         if max_velocity is not None:
-            min_thickness_value = self.calculate_thickess(max_velocity)
-            ax1.axvline(x=min_thickness_value, color='green', linestyle='--',
-                        linewidth=2, label=f'Min Design Thickness: {min_thickness_value:.2f}mm')
+            max_thickness_value = self.calculate_thickess(max_velocity)
+            ax1.axvline(x=max_thickness_value, color='green', linestyle='--',
+                        linewidth=2, label=f'Max Thickness: {max_thickness_value:.2f}mm')
 
-        plt.title('Fin Flutter Analysis', y=1.05)  # Adjust the title position
-
-        # Create a single legend for all lines
-        lines, labels = ax1.get_legend_handles_labels()
-        lines2, labels2 = ax2.get_legend_handles_labels()
-        ax2.legend(lines + lines2, labels + labels2, loc='upper left')
-
-        fig.tight_layout()  # Adjust layout to prevent clipping
+        plt.title('Fin Flutter Analysis', y=1.05)
+        ax1.legend(loc='upper left')
+        fig.tight_layout()
         plt.grid(True)
         plt.show()
         
@@ -196,7 +201,7 @@ def main():
         
     # Call the extended plotting function
     fin_flutter.plot_flutter_velocity(
-        max_thickness=10, thickness_increments=0.1, design_thickness=design_thickness, max_velocity=max_velocity)
+        max_thickness=8, thickness_increments=0.1, design_thickness=design_thickness, max_velocity=max_velocity)
 
 
 if __name__ == "__main__":
