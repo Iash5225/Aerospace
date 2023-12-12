@@ -60,8 +60,6 @@ class FinFlutter:
 
     def calculate_flutter_velocity(self, thickness):
         # Debug print statements to check intermediate values
-
-
         exponent_part = np.exp(0.4 * self.altitude / self.atmospheric_height)
         first_sqrt_part = np.sqrt(self.shear_modulus/self.std_atm_pressure)
         second_sqrt_part = np.sqrt((2 + self.aspect_ratio) /
@@ -70,12 +68,6 @@ class FinFlutter:
             thickness)/self.aspect_ratio, 3/2)
         flutter_velocity = 1.223 * self.speed_of_sound * exponent_part * \
             first_sqrt_part * second_sqrt_part * bracket_part
-            
-        # Debug print statements to check intermediate values
-        # print(f"Exponent part: {exponent_part}")
-        # print(f"First sqrt part: {first_sqrt_part}")
-        # print(f"Second sqrt part: {second_sqrt_part}")
-        # print(f"Bracket part: {bracket_part}")
         return flutter_velocity
     
     def calculate_thickess(self,flutter_velocity):
@@ -93,10 +85,20 @@ class FinFlutter:
         thickness = normalised_thickness * self.root_chord * 1000
         return thickness
 
-    def calculate_safety_factor(self, desired_safety_factor):
-        # Placeholder for safety factor calculation
-        # You will need to implement the actual logic based on your safety requirements
-        return desired_safety_factor
+    def calculate_safety_factor(self, design_thickness, max_allowable_velocity):
+            """
+            Calculate the safety factor for a given thickness.
+            
+            Safety Factor = Max Allowable Velocity / Calculated Flutter Velocity
+
+            :param design_thickness: Design thickness of the fin (in mm).
+            :param max_allowable_velocity: Maximum allowable flutter velocity (in m/s).
+            :return: Safety factor.
+            """
+            design_flutter_velocity = self.calculate_flutter_velocity(design_thickness)
+            if max_allowable_velocity == 0:
+                return float('inf')  # To avoid division by zero
+            return design_flutter_velocity / max_allowable_velocity
     
     def print_summary(self):
         print(f"Altitude: {self.altitude}")
@@ -115,28 +117,58 @@ class FinFlutter:
         print(f"Speed of sound: {self.speed_of_sound}")
         print(f"Atmospheric height: {self.atmospheric_height}")
         
-    def plot_flutter_velocity(self,max_thickness:int,thickness_incremenets:float):
-        # 101 points from 0 to 10
-        thickness_list = np.arange(
-            0, max_thickness + thickness_incremenets, thickness_incremenets)
-        
-        flutter_velocity_list = [self.calculate_flutter_velocity(
-            thickness) for thickness in thickness_list]
-        
-        # Plotting the results
-        plt.figure(figsize=(10, 6))
-        plt.plot(thickness_list, flutter_velocity_list, marker='o')
-        
-        # Setting minimum x and y limits to 0
-        plt.xlim(left=0)
-        plt.ylim(bottom=0)
-        plt.title('Fin Flutter Velocity vs. Thickness')
-        plt.xlabel('Thickness (mm)')
-        plt.ylabel('Flutter Velocity (m/s)')
+
+    def plot_flutter_velocity(self, max_thickness, thickness_increments, design_thickness=None, max_velocity=None):
+        thickness_list = np.arange(0, max_thickness + thickness_increments, thickness_increments)
+        flutter_velocity_list = [self.calculate_flutter_velocity(thickness) for thickness in thickness_list]
+        safety_factor_list = [self.calculate_safety_factor(thickness, max_velocity) for thickness in thickness_list]
+
+        fig, ax1 = plt.subplots(figsize=(12, 6))
+
+        color = 'tab:blue'
+        ax1.set_xlabel('Thickness (mm)')
+        ax1.set_ylabel('Flutter Velocity (m/s)', color=color)
+        ax1.plot(thickness_list, flutter_velocity_list, label='Flutter Velocity', marker='o', color=color)
+        ax1.tick_params(axis='y', labelcolor=color)
+
+        # Add max rocket velocity horizontal line
+        if max_velocity is not None:
+            ax1.axhline(y=max_velocity, color='purple', linestyle='--', linewidth=2, label=f'Max Rocket Velocity: {max_velocity}m/s')
+
+        ax2 = ax1.twinx()
+        color = 'tab:orange'
+        ax2.set_ylabel('Safety Factor', color=color)
+        # ax2.plot(thickness_list, safety_factor_list, label='Safety Factor', marker='x', color=color)
+        ax2.tick_params(axis='y', labelcolor=color)
+
+        # Highlight design thickness and max thickness points if provided
+        if design_thickness is not None:
+            design_velocity = self.calculate_flutter_velocity(design_thickness)
+            design_safety_factor = self.calculate_safety_factor(
+                design_thickness, max_velocity)
+            ax1.axvline(x=design_thickness, color='red', linestyle='--',
+                        linewidth=2, label=f'Design Thickness: {design_thickness}mm')
+            ax2.axhline(y=design_safety_factor, color='orange', linestyle='-.',
+                        linewidth=2, label=f'Design Safety Factor: {design_safety_factor:.2f}')
+
+        if max_velocity is not None:
+            min_thickness_value = self.calculate_thickess(max_velocity)
+            ax1.axvline(x=min_thickness_value, color='green', linestyle='--',
+                        linewidth=2, label=f'Min Design Thickness: {min_thickness_value:.2f}mm')
+
+        plt.title('Fin Flutter Analysis', y=1.05)  # Adjust the title position
+
+        # Create a single legend for all lines
+        lines, labels = ax1.get_legend_handles_labels()
+        lines2, labels2 = ax2.get_legend_handles_labels()
+        ax2.legend(lines + lines2, labels + labels2, loc='upper left')
+
+        fig.tight_layout()  # Adjust layout to prevent clipping
         plt.grid(True)
-        plt.show()  
+        plt.show()
         
 def main():
+    # Create an instance of FinFlutter with the required parameters
     # Create an instance of FinFlutter with the required parameters
     fin_flutter = FinFlutter(
         altitude=3048,
@@ -144,24 +176,27 @@ def main():
         root_chord=300,
         tip_chord=100,
         semi_span=140,
+        speed_of_sound=346.06  # Example speed of sound
     )
 
-    # Calculate flutter velocity
-    fin_flutter.set_speed_of_sound(346.06)
-    velocity = fin_flutter.calculate_flutter_velocity(4)
-    print(f"Flutter Velocity: {velocity:.2f} m/s")
-    
-    OR_max_velocity = 323
-    thickness = fin_flutter.calculate_thickess(OR_max_velocity)
-    print(
-        f"thickness required to handle OR max velocity of {OR_max_velocity} is {thickness} mm")
-    
-    # fin_flutter.plot_flutter_velocity(6,0.1)
+    # User input for design thickness and max velocity
+    design_thickness = float(input("Enter design thickness (in mm): "))
+    max_velocity = float(input("Enter max rocket velocity (in m/s): "))
 
-    # # Calculate safety factor (example value for desired_safety_factor provided)
-    # safety_factor = fin_flutter.calculate_safety_factor(
-    #     desired_safety_factor=1.5)
-    # print(f"Safety Factor: {safety_factor}")
+    # Calculate flutter velocity for design thickness
+    design_flutter_velocity = fin_flutter.calculate_flutter_velocity(
+        design_thickness)
+    print(f"Design Flutter Velocity: {design_flutter_velocity:.2f} m/s")
+
+    # Check if design flutter velocity is bigger than max velocity
+    if design_flutter_velocity > max_velocity:
+        print("The design is safe.")
+    else:
+        print("The design is not safe. Adjust thickness.")
+        
+    # Call the extended plotting function
+    fin_flutter.plot_flutter_velocity(
+        max_thickness=10, thickness_increments=0.1, design_thickness=design_thickness, max_velocity=max_velocity)
 
 
 if __name__ == "__main__":
