@@ -18,6 +18,7 @@ To ensure a consistent environment for all users, it's recommended to use a virt
 3. Activate the virtual environment:
 - On Windows: `venv\Scripts\activate`
 - On Unix or MacOS: `source venv/bin/activate`
+- GitBash on Windows: `source venv/Scripts/activate`
 6. Once the virtual environment is activated, install the required packages: `pip install -r requirements.txt`
 - If on Windows you must install the following package manually with: `pip install waitress`
 
