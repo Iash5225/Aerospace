@@ -1,10 +1,2 @@
 pandas
-nicegui
-matplotlib
-django
-gunicorn
-django_heroku
-whitenoise
-psycopg2
-waitress
- 
+matplotlib 

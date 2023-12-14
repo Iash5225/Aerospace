@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import re
 import math
 import os
-from django.conf import settings
+# from django.conf import settings
 
 
 class Rocket:
