@@ -16,9 +16,9 @@ class DataHandler:
         self.comments_df = None
         self.merged_df = None
         self.filtered_df = None
-        self.read_OR_csv()
+        self._read_OR_csv()
 
-    def read_OR_csv(self)->None:
+    def _read_OR_csv(self)->None:
         """Reads the Open Rocket CSV file and stores it in a DataFrame."""
         try:
             self.df = pd.read_csv(self.filepath, delimiter=",", skiprows=6)
@@ -26,13 +26,14 @@ class DataHandler:
         except Exception as e:
             print(f"Error reading the CSV file: {e}")
 
-    def _prepare_dataframes(self):
+    
+    def _prepare_dataframes(self)->None:
         """Prepares data and comments dataframes."""
         self._filter_comments()
         self.filtered_df = self._filter_data()
         self.merged_df = self._merge_dataframes()
 
-    def _filter_comments(self):
+    def _filter_comments(self)->None:
         """Filters comments from the main DataFrame and stores them separately."""
         comments_mask = self.df["# Time (s)"].astype(str).str.contains("#")
         comments_df = self.df[comments_mask].copy()
@@ -46,9 +47,7 @@ class DataHandler:
         """Filters out comment rows from the main DataFrame."""
         filtered_df = self.df[~self.df["# Time (s)"].astype(
             str).str.contains("#")].copy()
-        # print(filtered_df[["# Time (s)"]])
         filtered_df.rename(columns={"# Time (s)": "Time (s)"}, inplace=True)
-        # print(filtered_df["Time (s)"])
         return filtered_df
 
     def _merge_dataframes(self) -> pd.DataFrame:

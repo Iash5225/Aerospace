@@ -14,13 +14,7 @@ def main():
     csv_path = os.path.normpath(csv_path)
     
     data_handler = DataHandler(csv_path)
-    # data_handler.read_OR_csv()
-    # print(data_handler.filtered_df)
-    # print(data_handler.comments_df)
     print(data_handler.merged_df)
-    # print(data_handler.merged_df.columns)
-    # print(data_handler.merged_df["Pressure drag coefficient ()"])
-    # data_handler.filter_comments()
     
 
 if __name__ == "__main__":
