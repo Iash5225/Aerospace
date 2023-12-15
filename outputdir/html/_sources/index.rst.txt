@@ -9,10 +9,8 @@ Welcome to Aerospace's documentation!
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-
-   ../project/index
-
-
+   project/README
+   project/scripts
 
 
 
