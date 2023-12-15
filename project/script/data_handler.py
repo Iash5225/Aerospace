@@ -16,8 +16,9 @@ class DataHandler:
         self.comments_df = None
         self.merged_df = None
         self.filtered_df = None
+        self.read_OR_csv()
 
-    def read_OR_csv(self):
+    def read_OR_csv(self)->None:
         """Reads the Open Rocket CSV file and stores it in a DataFrame."""
         try:
             self.df = pd.read_csv(self.filepath, delimiter=",", skiprows=6)
@@ -45,17 +46,33 @@ class DataHandler:
         """Filters out comment rows from the main DataFrame."""
         filtered_df = self.df[~self.df["# Time (s)"].astype(
             str).str.contains("#")].copy()
-        print(filtered_df[["# Time (s)"]])
-        filtered_df.rename(columns={"# Time (s)": "Time (s)"},inplace=True)
-        print(filtered_df["Time (s)"])
+        # print(filtered_df[["# Time (s)"]])
+        filtered_df.rename(columns={"# Time (s)": "Time (s)"}, inplace=True)
+        # print(filtered_df["Time (s)"])
         return filtered_df
 
     def _merge_dataframes(self) -> pd.DataFrame:
-        """Merges filtered data with comments data."""
-        merged = self.filtered_df.merge(self.comments_df, on="Time (s)", how="left")
-        merged["Time (s)"] = pd.to_numeric(
-            merged["# Time (s)"], errors="coerce")
-        return merged.rename(columns={"# Time (s)": "Time (s)"})
+        """Merges filtered data with comments data and cleans U+200B characters."""
+        # Convert 'Time (s)' in both dataframes to float
+        self.filtered_df["Time (s)"] = pd.to_numeric(
+            self.filtered_df["Time (s)"], errors='coerce')
+        if self.comments_df is not None:
+            self.comments_df["Time (s)"] = pd.to_numeric(
+                self.comments_df["Time (s)"], errors='coerce')
+
+        # Perform the merge
+        merged = self.filtered_df.merge(
+            self.comments_df, on="Time (s)", how="left")
+
+        # Clean U+200B characters from data
+        for column in merged.columns:
+            if merged[column].dtype == object:
+                merged[column] = merged[column].str.replace('\u200b', '')
+
+        # Clean U+200B characters from column names
+        merged.columns = [col.replace('\u200b', '') for col in merged.columns]
+
+        return merged
 
     def _extract_time(self, text: str) -> float:
         """Extracts time from a comment string."""
