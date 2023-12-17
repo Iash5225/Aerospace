@@ -1,10 +1,11 @@
 import numpy as np
 import math
 import matplotlib.pyplot as plt
+# from data_handler import DataHandler
 
 
 class FinFlutter:
-    def __init__(self, altitude: int, shear_modulus: float, root_chord: float, tip_chord: float, semi_span: float, speed_of_sound: float = 335, atmospheric_height: float = 8077, std_atm_pressure: float = 101325):
+    def __init__(self, shear_modulus: float, root_chord: float, tip_chord: float, semi_span: float, altitude: int=10000, speed_of_sound: float = 335, atmospheric_height: float = 8077, std_atm_pressure: float = 101325):
         self.altitude = altitude
         self.shear_modulus = shear_modulus
         self.speed_of_sound = speed_of_sound
