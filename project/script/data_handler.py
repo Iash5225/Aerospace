@@ -25,6 +25,12 @@ class DataHandler:
         
 
     def set_max_RAS_mach(self, max_mach: float)->None:
+        """
+        set_max_RAS_mach   Sets the maximum Mach number for the RAS Aero CSV file.
+
+        :param max_mach:  Maximum Mach number
+        :type max_mach: float
+        """        
         self.max_RAS_mach = max_mach
 
     def _read_OR_csv(self) -> None:
@@ -46,9 +52,15 @@ class DataHandler:
             print(f"Error reading the RAS CSV file: {e}")
             
     def export_mach_cd_df_to_txt(self,OUTPUT_FILE_PATH:str):
+        """
+        export_mach_cd_df_to_txt  Exports the Mach and CD DataFrame to a tab-delimited text file.
+
+        :param OUTPUT_FILE_PATH:  Output file path
+        :type OUTPUT_FILE_PATH: str
+        """        
         
         df = self.filtered_ras_df[["Mach", "CD"]]
-        df = df.drop_duplicates(subset=['Mach'])
+        
         # Export the DataFrame as a tab-delimited text file
         df.to_csv(OUTPUT_FILE_PATH, sep="\t", index=False)
 
@@ -67,7 +79,11 @@ class DataHandler:
         
 
     def filter_mach_from_ras_csv(self)->None:
+        """
+        filter_mach_from_ras_csv  Filters the RAS Aero CSV file by Mach number.
+        """        
         filtered_RAS_df = self.ras_df[self.ras_df["Mach"] <= self.max_RAS_mach]
+        filtered_RAS_df = filtered_RAS_df.drop_duplicates(subset=['Mach'])
         self.filtered_ras_df = filtered_RAS_df
 
     def _filter_comments(self) -> None:
