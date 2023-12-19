@@ -13,6 +13,7 @@ def prep_csv() -> None:
     filtered_df = filtered_df[filtered_df["Mach"] <= 2]
     # Export the DataFrame as a tab-delimited text file
     filtered_df.to_csv(OUTPUT_FILE_PATH, sep="\t", index=False)
+    
     print(f"Data exported to {OUTPUT_FILE_PATH}")
 
 def main():

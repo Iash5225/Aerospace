@@ -20,10 +20,11 @@ class DataHandler:
         self.filtered_or_df = None
         self.ras_df = None
         self.filtered_ras_df = None
-        self._prepare_dataframes()
         self.max_RAS_mach = 2.0
+        self._prepare_dataframes()
+        
 
-    def set_max_RAS_mach(self, max_mach: float):
+    def set_max_RAS_mach(self, max_mach: float)->None:
         self.max_RAS_mach = max_mach
 
     def _read_OR_csv(self) -> None:
@@ -47,6 +48,7 @@ class DataHandler:
     def export_mach_cd_df_to_txt(self,OUTPUT_FILE_PATH:str):
         
         df = self.filtered_ras_df[["Mach", "CD"]]
+        df = df.drop_duplicates(subset=['Mach'])
         # Export the DataFrame as a tab-delimited text file
         df.to_csv(OUTPUT_FILE_PATH, sep="\t", index=False)
 
@@ -56,11 +58,13 @@ class DataHandler:
         """
         if self.or_filepath != "":
             self._read_OR_csv()
+            self._filter_comments()
+            self.filtered_or_df = self._filter_data()
+            self.merged_df = self._merge_dataframes()
         elif self.ras_filepath != "":
             self._read_RASAero_csv()
-        self._filter_comments()
-        self.filtered_or_df = self._filter_data()
-        self.merged_df = self._merge_dataframes()
+            self.filter_mach_from_ras_csv()
+        
 
     def filter_mach_from_ras_csv(self)->None:
         filtered_RAS_df = self.ras_df[self.ras_df["Mach"] <= self.max_RAS_mach]
