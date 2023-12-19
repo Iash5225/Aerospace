@@ -1,10 +1,27 @@
 import numpy as np
-import math
 import matplotlib.pyplot as plt
-# from data_handler import DataHandler
-
 
 class FinFlutter:
+    """
+    A class to calculate fin flutter characteristics for aerospace applications.
+
+    This class supports calculations in both SI and Imperial units. It provides methods to calculate
+    fin flutter speed using two different equations, one based on SI units and another based on Imperial units.
+
+    Attributes:
+        altitude (float) (ft or m): Altitude at which the fin operates.
+        shear_modulus (float) (Pa or ...): Shear modulus of the fin material.
+        root_chord (float) (m or inches): Root chord length of the fin.
+        tip_chord (float) (m or inches): Tip chord length of the fin.
+        semi_span (float) (m or inches): Semi-span of the fin.
+        speed_of_sound (float): Speed of sound at the given altitude.
+        atmospheric_height (float): Scale height of the atmosphere.
+        std_atm_pressure (float): Standard atmospheric pressure.
+        temperature (float): Temperature at the given altitude.
+        pressure (float): Pressure at the given altitude.
+    """    
+    
+    
     def __init__(self, shear_modulus: float, root_chord: float, tip_chord: float, semi_span: float, altitude: int = 10000, speed_of_sound: float = 335, atmospheric_height: float = 8077, std_atm_pressure: float = 101325):
         self.altitude = altitude
         self.shear_modulus = shear_modulus
