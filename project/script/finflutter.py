@@ -1,11 +1,28 @@
 import numpy as np
-import math
 import matplotlib.pyplot as plt
-# from data_handler import DataHandler
-
 
 class FinFlutter:
-    def __init__(self, shear_modulus: float, root_chord: float, tip_chord: float, semi_span: float, altitude: int=10000, speed_of_sound: float = 335, atmospheric_height: float = 8077, std_atm_pressure: float = 101325):
+    """
+    A class to calculate fin flutter characteristics for aerospace applications.
+
+    This class supports calculations in both SI and Imperial units. It provides methods to calculate
+    fin flutter speed using two different equations, one based on SI units and another based on Imperial units.
+
+    Attributes:
+        altitude (float) (ft or m): Altitude at which the fin operates.
+        shear_modulus (float) (Pa or ...): Shear modulus of the fin material.
+        root_chord (float) (m or inches): Root chord length of the fin.
+        tip_chord (float) (m or inches): Tip chord length of the fin.
+        semi_span (float) (m or inches): Semi-span of the fin.
+        speed_of_sound (float): Speed of sound at the given altitude.
+        atmospheric_height (float): Scale height of the atmosphere.
+        std_atm_pressure (float): Standard atmospheric pressure.
+        temperature (float): Temperature at the given altitude.
+        pressure (float): Pressure at the given altitude.
+    """    
+    
+    
+    def __init__(self, shear_modulus: float, root_chord: float, tip_chord: float, semi_span: float, altitude: int = 10000, speed_of_sound: float = 335, atmospheric_height: float = 8077, std_atm_pressure: float = 101325):
         self.altitude = altitude
         self.shear_modulus = shear_modulus
         self.speed_of_sound = speed_of_sound
@@ -19,8 +36,8 @@ class FinFlutter:
         # self.root_chord = root_chord / 1000  # Convert mm to meters
 
         self.semi_span = semi_span
-        self.tip_chord = tip_chord 
-        self.root_chord = root_chord 
+        self.tip_chord = tip_chord
+        self.root_chord = root_chord
 
     def set_temperature(self, temperature: float) -> None:
         """set_temperature  Set the temperature of the fin.
@@ -151,29 +168,32 @@ class FinFlutter:
 
         return (2116/144) * np.float_power(((self.temperature + 459.7)/518.6), 5.256)
 
-    def calc_speed_of_sound(self)->float:
+    def calc_speed_of_sound(self) -> float:
         """calc_speed_of_sound  Calcualte the speed of sound based on Zachary Howard. “How To Calculate Fin Flutter Speed”. In: Peak of Flight 291 (July 2011).
 
         :return:  speed of sound 
         :rtype: float
-        """        
+        """
         speed_of_sound = np.sqrt(1.4*1716.59*(self.temperature+460))
         return speed_of_sound
 
-    def calculate_flutter_velocity_eq2(self, thickness:float)->float:
+    def calculate_flutter_velocity_eq2(self, thickness: float) -> float:
         """calculate_flutter_velocity_eq2  Calculate the fin flutter based on Zachary Howard. “How To Calculate Fin Flutter Speed”. In: Peak of Flight 291 (July 2011).
 
         :param thickness:  The thickness of the fin in inches
         :type thickness: float
         :return:  Fin flutter in mph
         :rtype: float
-        """        
+        """
         bottom_denominator = 2*(self.aspect_ratio + 2) * \
             np.power((thickness/self.root_chord), 3)
 
-        middle_part = 1.337*np.power(self.aspect_ratio, 3)*self.pressure * (self.taper_ratio + 1)
+        middle_part = 1.337 * \
+            np.power(self.aspect_ratio, 3) * \
+            self.pressure * (self.taper_ratio + 1)
 
-        flutter_velocity = self.calc_speed_of_sound()*np.sqrt(self.shear_modulus/(middle_part/bottom_denominator))
+        flutter_velocity = self.calc_speed_of_sound()*np.sqrt(self.shear_modulus /
+                                                              (middle_part/bottom_denominator))
         return flutter_velocity
 
     def normalised_thickness(self, thickness: float) -> float:
@@ -361,7 +381,8 @@ def main():
 
     # fin_flutter.evaluate_flutter_design(design_thickness, max_velocity)
 
-    news_fin = FinFlutter(altitude=3000,shear_modulus=380000,root_chord=9.75,tip_chord=3.75,semi_span=4.75)
+    news_fin = FinFlutter(altitude=3000, shear_modulus=380000,
+                          root_chord=9.75, tip_chord=3.75, semi_span=4.75)
 
     fin_flutter_velocity = news_fin.calculate_flutter_velocity_eq2(0.125)
 

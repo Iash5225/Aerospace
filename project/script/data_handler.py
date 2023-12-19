@@ -5,43 +5,91 @@ import re
 class DataHandler:
     """Handles data operations for rocket analysis."""
 
-    def __init__(self, filepath:str):
+    def __init__(self, or_filepath: str = "", ras_filepath: str = ""):
         """
         __init__  Initializes the DataHandler class with a given file path.
 
-        :param filepath:  Filepath to the OR rocket exported CSV file
-        :type filepath: str 
-        """   
-        self.filepath = filepath
+        :param or_filepath:  Filepath to the OR rocket exported CSV file
+        :type or_filepath: str 
+        """
+        self.or_filepath = or_filepath
+        self.ras_filepath = ras_filepath
         self.df = None
         self.comments_df = None
         self.merged_df = None
-        self.filtered_df = None
-        self._read_OR_csv()
+        self.filtered_or_df = None
+        self.ras_df = None
+        self.filtered_ras_df = None
+        self.max_RAS_mach = 2.0
+        self._prepare_dataframes()
+        
 
-    def _read_OR_csv(self)->None:
+    def set_max_RAS_mach(self, max_mach: float)->None:
+        """
+        set_max_RAS_mach   Sets the maximum Mach number for the RAS Aero CSV file.
+
+        :param max_mach:  Maximum Mach number
+        :type max_mach: float
+        """        
+        self.max_RAS_mach = max_mach
+
+    def _read_OR_csv(self) -> None:
         """
         _read_OR_csv  Reads the Open Rocket CSV file and stores it in a DataFrame.
-        """        
+        """
         try:
-            self.df = pd.read_csv(self.filepath, delimiter=",", skiprows=6)
-            self._prepare_dataframes()
+            self.df = pd.read_csv(self.or_filepath, delimiter=",", skiprows=6)
         except Exception as e:
-            print(f"Error reading the CSV file: {e}")
+            print(f"Error reading the OR CSV file: {e}")
 
-    
-    def _prepare_dataframes(self)->None:
+    def _read_RASAero_csv(self) -> None:
+        """
+        _read_RASAero_csv  Reads the RAS Aero CSV file and stores it in a Dataframe.
+        """
+        try:
+            self.ras_df = pd.read_csv(self.ras_filepath)
+        except Exception as e:
+            print(f"Error reading the RAS CSV file: {e}")
+            
+    def export_mach_cd_df_to_txt(self,OUTPUT_FILE_PATH:str):
+        """
+        export_mach_cd_df_to_txt  Exports the Mach and CD DataFrame to a tab-delimited text file.
+
+        :param OUTPUT_FILE_PATH:  Output file path
+        :type OUTPUT_FILE_PATH: str
+        """        
+        
+        df = self.filtered_ras_df[["Mach", "CD"]]
+        
+        # Export the DataFrame as a tab-delimited text file
+        df.to_csv(OUTPUT_FILE_PATH, sep="\t", index=False)
+
+    def _prepare_dataframes(self) -> None:
         """
         _prepare_dataframes  Prepares the dataframes for analysis. These include: initial dataframe, filtered dataframe, comments dataframe, and merged dataframe.
-        """        
-        self._filter_comments()
-        self.filtered_df = self._filter_data()
-        self.merged_df = self._merge_dataframes()
+        """
+        if self.or_filepath != "":
+            self._read_OR_csv()
+            self._filter_comments()
+            self.filtered_or_df = self._filter_data()
+            self.merged_df = self._merge_dataframes()
+        elif self.ras_filepath != "":
+            self._read_RASAero_csv()
+            self.filter_mach_from_ras_csv()
+        
 
-    def _filter_comments(self)->None:
+    def filter_mach_from_ras_csv(self)->None:
+        """
+        filter_mach_from_ras_csv  Filters the RAS Aero CSV file by Mach number.
+        """        
+        filtered_RAS_df = self.ras_df[self.ras_df["Mach"] <= self.max_RAS_mach]
+        filtered_RAS_df = filtered_RAS_df.drop_duplicates(subset=['Mach'])
+        self.filtered_ras_df = filtered_RAS_df
+
+    def _filter_comments(self) -> None:
         """
         _filter_comments  Filters comments from the main DataFrame and stores them separately.
-        """        
+        """
         comments_mask = self.df["# Time (s)"].astype(str).str.contains("#")
         comments_df = self.df[comments_mask].copy()
         comments_df["Time (s)"] = comments_df["# Time (s)"].apply(
@@ -56,11 +104,11 @@ class DataHandler:
 
         :return:  Filtered DataFrame
         :rtype: pd.DataFrame
-        """        
-        filtered_df = self.df[~self.df["# Time (s)"].astype(
+        """
+        filtered_or_df = self.df[~self.df["# Time (s)"].astype(
             str).str.contains("#")].copy()
-        filtered_df.rename(columns={"# Time (s)": "Time (s)"}, inplace=True)
-        return filtered_df
+        filtered_or_df.rename(columns={"# Time (s)": "Time (s)"}, inplace=True)
+        return filtered_or_df
 
     def _merge_dataframes(self) -> pd.DataFrame:
         """
@@ -68,16 +116,16 @@ class DataHandler:
 
         :return:  Merged DataFrame
         :rtype: pd.DataFrame
-        """        
+        """
         # Convert 'Time (s)' in both dataframes to float
-        self.filtered_df["Time (s)"] = pd.to_numeric(
-            self.filtered_df["Time (s)"], errors='coerce')
+        self.filtered_or_df["Time (s)"] = pd.to_numeric(
+            self.filtered_or_df["Time (s)"], errors='coerce')
         if self.comments_df is not None:
             self.comments_df["Time (s)"] = pd.to_numeric(
                 self.comments_df["Time (s)"], errors='coerce')
 
         # Perform the merge
-        merged = self.filtered_df.merge(
+        merged = self.filtered_or_df.merge(
             self.comments_df, on="Time (s)", how="left")
 
         # Clean U+200B characters from data
@@ -98,7 +146,7 @@ class DataHandler:
         :type text: str
         :return:  Time in seconds
         :rtype: float
-        """        
+        """
         match = re.search(r"t=([\d\.]+)", text)
         return float(match.group(1)) if match else None
 
@@ -110,7 +158,7 @@ class DataHandler:
         :type text: str
         :return:  Event name
         :rtype: str
-        """        
+        """
         return text.replace(r"occurred at t=[\d\.]+ seconds", "").replace("#", "").strip()
 
     def _process_comment_events(self, comments_df: pd.DataFrame) -> pd.DataFrame:
@@ -121,7 +169,7 @@ class DataHandler:
         :type comments_df: pd.DataFrame
         :return:  Processed comments DataFrame
         :rtype: pd.DataFrame
-        """        
+        """
 
         comments_df["Event"] = comments_df["Event"].apply(self.remove_non_caps)
         events_to_replace = {
@@ -142,7 +190,7 @@ class DataHandler:
         :type event_name: str
         :return:  Time in seconds
         :rtype: float
-        """        
+        """
         event_time = self.merged_df.loc[self.merged_df["Event"]
                                         == event_name, "Time (s)"]
         return float(event_time.iloc[0]) if not event_time.empty else None
@@ -155,8 +203,8 @@ class DataHandler:
         :type event_name: str
         :return:  Mach number
         :rtype: float
-        """        
-        
+        """
+
         event_mach = self.merged_df.loc[self.merged_df["Event"]
                                         == event_name, "Mach number ()"]
         return float(event_mach.iloc[0]) if not event_mach.empty else None
@@ -169,5 +217,5 @@ class DataHandler:
         :type text: str
         :return:  Text with non-caps words removed
         :rtype: str
-        """        
+        """
         return " ".join(word for word in text.split() if word.isupper())
