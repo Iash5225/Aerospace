@@ -24,10 +24,10 @@ pressure_function = lambdify(T, P_expr, modules='numpy')
 speed_of_sound_function = lambdify(T, a_expr, modules='numpy')
 aspect_ratio_function = lambdify((cr, ct, b), AR_expr, modules='numpy')
 taper_ratio_function = lambdify((cr, ct), lambda_expr, modules='numpy')
+flutter_velocity_lambdified = lambdify(
+        (a, G, AR, P, lambda_ratio, t, cr), Vf_expr, modules='numpy')
 
 # Now, you can call these lambdified functions in your main calculation functions
-
-
 def calculate_temperature(altitude):
     return temperature_function(altitude)
 
@@ -48,19 +48,12 @@ def calculate_flutter_velocity(altitude, shear_modulus, thickness, root_chord, t
     pressure = calculate_pressure(altitude)
     speed_of_sound = calculate_speed_of_sound(altitude)
 
-    # Lambdify the flutter velocity expression for numerical calculation
-    flutter_velocity_lambdified = lambdify(
-        (a, G, AR, P, lambda_ratio, t, cr), Vf_expr, modules='numpy')
-
-    # Calculate flutter velocity by calling the lambdified function
     flutter_velocity = flutter_velocity_lambdified(
         speed_of_sound, shear_modulus, aspect_ratio, pressure, taper_ratio, thickness, root_chord)
 
     return flutter_velocity
 
 # Example usage in a 'main' function
-
-
 def main():
     # Example input values
     altitude = 3000  # in feet
