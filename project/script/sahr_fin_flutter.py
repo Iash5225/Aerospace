@@ -27,11 +27,39 @@ thickness_function = lambdify(
     (cr, Vf, Cs0, h, H, G, P0, B, lambda_ratio), t_expr, modules='numpy')
 
 # Now, you can call these lambdified functions in your main calculation functions
-def calculate_normalised_thickness(thickness, root_chord):
+def calculate_normalised_thickness(thickness:float, root_chord:float)->float:
+    """
+    calculate_normalised_thickness  Calculate the normalised thickness of a fin
+
+    Args:
+        thickness (float):  The thickness of the fin in inches
+        root_chord (float):  The root chord of the fin in inches
+
+    Returns:
+        float:  The normalised thickness of the fin
+    """    
+    
     return normalised_thickness_function(thickness, root_chord)
 
 
-def calculate_flutter_velocity(sea_level_speed_of_sound, altitude, atmospheric_scale_height, shear_modulus, sea_level_pressure, thickness, root_chord, tip_chord, semispan):
+def calculate_flutter_velocity(sea_level_speed_of_sound:float, altitude:float, atmospheric_scale_height:float, shear_modulus:float, sea_level_pressure:float, thickness:float, root_chord:float, tip_chord:float, semispan:float)->float:
+    """
+    calculate_flutter_velocity  Calculate the flutter velocity of a fin
+
+    Args:
+        sea_level_speed_of_sound (float):  The speed of sound at sea level in m/s
+        altitude (float):  The altitude in m 
+        atmospheric_scale_height (float):  The atmospheric scale height in m
+        shear_modulus (float):  The shear modulus of the fin material in Pa
+        sea_level_pressure (float):  The sea level pressure in Pa
+        thickness (float):  The thickness of the fin in m
+        root_chord (float):  The root chord of the fin in m
+        tip_chord (float):  The tip chord of the fin in m
+        semispan (float):  The semispan of the fin in m
+
+    Returns:
+        float:  The flutter velocity of the fin in m/s
+    """    
     aspect_ratio = aspect_ratio_function(root_chord, tip_chord, semispan)
     taper_ratio = taper_ratio_function(root_chord, tip_chord)
     normalised_thickness = calculate_normalised_thickness(
@@ -42,7 +70,6 @@ def calculate_flutter_velocity(sea_level_speed_of_sound, altitude, atmospheric_s
 
     return flutter_velocity
 
-def cacu
 
 # Example usage in a 'main' function
 
