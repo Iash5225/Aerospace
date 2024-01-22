@@ -1,6 +1,4 @@
 from data_handler import DataHandler
-from finflutter import FinFlutter
-import pandas as pd
 import os
 import matplotlib.pyplot as plt
 

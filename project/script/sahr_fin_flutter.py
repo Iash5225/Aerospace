@@ -14,7 +14,7 @@ T_expr = t/cr
 Vf_expr = 1.223 * Cs0 * exp(0.4*h/H)*sqrt(G/P0) * \
     sqrt((2+B)/(1+lambda_ratio))*(T/B)**(3/2)
 
-t_expr = (cr*B)(Vf/(1.223 * Cs0 * exp(0.4*h/H)*sqrt(G/P0) *
+t_expr = (cr*B)*(Vf/(1.223 * Cs0 * exp(0.4*h/H)*sqrt(G/P0) *
                 sqrt((2+B)/(1+lambda_ratio))))**(2/3)
 
 # Lambdify expressions for numerical calculations
