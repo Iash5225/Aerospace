@@ -96,25 +96,3 @@ def calculate_flutter_velocity(altitude:float, shear_modulus:float, thickness:fl
         speed_of_sound, shear_modulus, aspect_ratio, pressure, taper_ratio, thickness, root_chord)
 
     return flutter_velocity
-
-# Example usage in a 'main' function
-def main():
-    # Example input values
-    altitude = 3000  # in feet
-    shear_modulus = 380000  # in psi
-    thickness = 0.125  # in inches
-    root_chord = 9.75  # in inches
-    tip_chord = 3.75  # in inches
-    semispan = 4.75  # in inches
-
-    # Perform calculations
-    flutter_velocity = calculate_flutter_velocity(
-        altitude, shear_modulus, thickness, root_chord, tip_chord, semispan)
-
-    # Output results
-    print(
-        f"Flutter velocity at altitude {altitude} feet: {flutter_velocity} feet/second")
-
-
-if __name__ == "__main__":
-    main()

@@ -69,31 +69,3 @@ def calculate_flutter_velocity(sea_level_speed_of_sound:float, altitude:float, a
         sea_level_speed_of_sound, altitude, atmospheric_scale_height, shear_modulus, sea_level_pressure, aspect_ratio, taper_ratio, normalised_thickness)
 
     return flutter_velocity
-
-
-# Example usage in a 'main' function
-
-
-def main():
-    # Example input values
-    altitude = 3000  # in feet
-    shear_modulus = 380000  # in psi
-    thickness = 0.125  # in inches
-    root_chord = 9.75  # in inches
-    tip_chord = 3.75  # in inches
-    semispan = 4.75  # in inches
-    sea_level_sound = 1100  # in ft/s
-    sea_level_pressure = 14.7  # in psi
-    atmospheric_scale_height = 26500  # ft
-
-    # Perform calculations
-    flutter_velocity = calculate_flutter_velocity(
-        sea_level_sound, altitude, atmospheric_scale_height, shear_modulus, sea_level_pressure, thickness, root_chord, tip_chord, semispan)
-
-    # Output results
-    print(
-        f"Flutter velocity at altitude {altitude} feet: {flutter_velocity} feet/second")
-
-
-if __name__ == "__main__":
-    main()
